@@ -1,0 +1,294 @@
+\documentclass[a4paper,12pt]{article}
+\linespread{1.3}
+\usepackage[left=2cm,top=2cm,right=2cm,bottom=2cm]{geometry}
+
+%\usepackage{palatino}
+
+\usepackage{xypic}
+\usepackage{natbib}
+\bibliographystyle{plainnat}
+\bibpunct{[}{]}{;}{s}{,}{,}
+
+\usepackage[header,page,titletoc]{appendix}
+\renewcommand{\appendixname}{Appendix}
+%\renewcommand{\appendixtocname}{List of appendices}
+
+\usepackage[colorlinks=true,linkcolor=black,citecolor=black,filecolor=black,menucolor=black,urlcolor=black]{hyperref}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{pdfpages}
+\usepackage{fancyhdr}
+\usepackage{pict2e}
+\setlength{\headheight}{15.2pt}
+
+\pagestyle{fancy}
+\usepackage{cite}
+%
+% fix citations to be IEEE style
+\def\citepunct{], [}
+\def\citedash{]--[}
+
+\newcommand{\nonumsection}[1]{
+\section{#1}
+%\addcontentsline{toc}{section}{#1}
+}
+
+%Used to change "Abstract" to "Executive Summary"
+
+% Paragraph Settings
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+
+\begin{document}
+\thispagestyle{empty}
+\vspace*{\fill}
+\includegraphics[width=10cm]{./UofAlogo.pdf}\\
+\noindent
+\textsc{
+\textsc{School of Electrical \& Electronic Engineering}\\
+Adelaide, South Australia, 5005\\ \\
+}
+\noindent
+\Large{\textbf{
+ELEC ENG 4039A/B \\
+Honours Project\\
+	}}
+	\Large{
+		A Radio Relay System for Remote Sensors in the Antarctic \\
+	}
+	\small{\textbf{Supervisors: Dr. Chris Coleman, Dr Said Al-Sarawi}}
+	\ \\
+	\ \\
+	\Large{\textbf{
+		Interim Progress Report \\
+	}}
+	\ \\
+	\small{\textbf{
+		Written by: \\}
+		Mark Jessop \\
+		1163807
+	}
+	\ \\
+	\ \\
+	Date Submitted: June 3, 2010 \\
+	Signature of Supervisor: \\
+ %\end{center}
+ \vspace*{\fill}
+
+\newpage
+ \thispagestyle{empty}
+ \vspace*{\fill}
+\begin{abstract}
+\noindent
+This report describes the current progress of the radio relay system project. Over the past semester much design work has been accomplished, and construction and testing of the first prototype has begun. 
+\end{abstract}
+\vspace*{\fill}
+\newpage
+\tableofcontents
+\newpage
+
+
+
+\section{High Level Design}
+\label{high_level}
+The high level design for the project has been slightly changed from the design shown in the Stage 1 Design Document (Appendix A). As no information about the existing sensor equipment has been received, the decision was made to make the data tap section of the project more generic. Focus will be placed on providing a set of libraries for the micro-controller, to enable recording of data from a range of inputs.
+
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=15cm]{BlockDiagram.pdf}
+\caption{Updated Block Diagram}
+\label{new_block_diag}
+\end{center}
+\end{figure}
+
+\section{Processor Choice}
+After looking at a range of processors from the Texas Instruments and Atmel families, the Atmel AT-XMEGA128A1 processor was chosen to be the heart of the project. The AT-XMEGA is a 8-bit RISC processor with a clock speed of up to 32MHz. It has 128Kb of program Flash memory, and 8Kb of SRAM. $9\times 8$-bit general purpose input/output (GPIO) lines are available for use.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=11cm]{xmega_1.jpg}
+\caption{AT-XMEGA128A1 Breakout Board}
+\label{xmega_1}
+\end{center}
+\end{figure}
+
+A key feature is the ability to attach SRAM or SDRAM to either 2 or 3 of the GPIO ports (depending on RAM size), and have the RAM appear at the end of the micro-controllers memory space. This will allow easy creation of a large buffer space for storing collected data. Of course, attaching extra RAM will reduce the number of GPIO pins available for data collection, but the number of pins remaining ($5\times8$-bit ports, allowing for 3-port RAM and 1-port for transmitter control) is still considerable. Functionality available from the remaining ports includes 5 UARTs, 16 multiplexed ADC inputs, and 2 DAC outputs.
+
+Power usage of the chip averages around 18.5mA in active mode when operating at 32MHz, down to 0.7mA  operating at 1MHz. In power-save mode, where only the internal 32KHz RTC (Real-Time Clock) oscillator is active, the chip draws only $0.55\mu$A. As the transmitter will be operating on a small duty cycle (approx. 1 hour per day), the chip will be in this mode most of the time.
+
+An AT-XMEGA128A1 breakout board has been purchased at a cost of \$30.80 from Sparkfun Electronics. This board breaks the 100-pin TQFP out to 0.1' pitch pin-headers, for easy prototyping. The final prototype will have everything on one board, but this breakout will help immensely for getting things working in the meantime.
+
+\subsection{Cold Testing}
+\label{coldtest}
+To test the suitability of the AT-XMega128A1 for use in cold climates, the breakout board was cooled using dry ice. Operating off an internal 32MHz RC oscillator, the chip reached -54$^\circ$C, and was still completely operational. The only point of note was that the internal oscillator's frequency drifted up by 1MHz. Further tests will be conducted using crystal oscillators, and the internal RC oscillator.
+
+The secondary purpose of these tests was to determine if cold temperatures would cause warping of PCBs. Two multi-layer PCBs provided by Mr Pavel Simcik were left uninsulated in dry ice while testing of the XMega was underway. Retrieved from the dry ice a day later, the boards showed no sign of deformation.
+
+More information on the testing process is provided in Appendix B.
+
+\section{Signal Generator Design}
+The RF signal is generated by an Analog Devices AD9834 Direct Digital Synthesis (DDS) IC. When supplied with a 50MHz master clock the DDS IC can generate sine waves between DC and 25MHz, and is programmable via a SPI (Serial Peripheral Interface). 
+
+Two frequency registers are available, and the IC can switch between them using input from an IO pin, facilitating easy FSK (Frequency Shift Keying) modulation. Additionally, two phase registers and a corresponding IO pin allow easy BPSK (Binary Phase Shift Keying) modulation. 
+
+As the chip is produced in a SMD form factor (TSSOP-20), a small breakout board was purchased to break out the SMD chip to pin headers. A PCB was then designed using all through-hole components for easy construction. It is expected that this board will be working by the end of Week 13, Semester 1.
+
+The PCB schematic and artwork appears in Appendix C.
+
+\section{Power Amplifier Design}
+The output from the signal generator is very low, around -40dBm, and hence needs to be amplified to be usable. A class C MOSFET based power amplifier will be the final stage of the amplifier, but the signal from the DDS still needs to be amplified before this stage. To do this, a dual op-amp based circuit based on the Analog Devices AD8008 will be used. The gain of this amplifier will be adjustable using a digital potentiometer, which is itself controlled from the central micro-controller. If all goes well, the output from the PA should be adjustable from approximately 500mW up to 5W.
+
+\section{Antenna}
+For placement in the field, a simple dipole antenna, or some form of broadband antenna will still be used. Unfortunately due to space restrictions such an antenna cannot be erected at the University. Instead a commercial HF antenna will be purchased, most likely a Comet CHA-250B\footnote{http://www.cometantenna.com/products.php?CatID=1\&famID=5\&childID=6}, a wide-band HF vertical. This antenna is effectively a giant loading coil, and will not perform as well as a dipole, but with a good ground it will be adequate. The antenna will be mounted on top of the Engineering North building, and will be usable for many other projects for years to come.
+
+Since the antenna is rather expensive ($\sim$USD\$450), any budget remaining after component purchases will be put towards it, with the remaining funds sourced elsewhere.
+
+\section{Software Design}
+As stated in Section \ref{high_level}, the software side of the project has become more generalised due to lack of information about the existing hardware. To this end, much of the software work will be devoted to providing a set of libraries to record and transmit data.
+
+The software can be thought of as a series of layers on top of the underlying hardware, with each layer acting to abstract functionality away into simple function calls. 
+
+\subsection{Software Modules}
+\subsubsection{Transmitter Control} 
+This section can be thought of as the lowest level of the software. It will provide functions to enable and disable the signal generator, program frequencies, and switch between frequency registers (hence modulating the output). If a viable power control system is implemented, then this section will also set output power levels. 
+
+\subsubsection{Modulation}
+The next layer up from the transmitter control. This layer will implement various modulation schemes, which can be used in different environments. Simple FSK can be used for transmitting large segments of data ($\sim$263kB/hr), while other modes like MFSK can be used for transmitting smaller amounts of data, but with much greater reliability. 
+
+If time permits, it may be worthwhile to implement JT65\footnote{Joe Taylor, K1JT (September-October 2005). ``The JT65 Communications Protocol" \url{http://physics.princeton.edu/pulsar/K1JT/JT65.pdf}}, a very low data-rate mode that can be demodulated with a signal-to-noise ratio of $-27$dB. This would be a good way to signify that the transmitter is still functional, even in extremely bad radio conditions.
+
+\subsubsection{Transmitted Data Structure}
+To be able to compile data from multiple sources into one transmission, some form of data structure must be devised. This will incorporate some form of packet header with information about the payload data. Checksums should be included to verify received data, and other forms of error correction may be included.
+
+\subsubsection{Data Sampling}
+The free GPIO pins allow collection of data from many different sources, such as ADCs and UARTs. Other data sources, such as from a parallel data bus can be sampled using interrupts. A few different serial standards, such as SPI or I2C can be implemented, using pre-existing libraries. 
+
+Various functions will need to be coded to provide easy ways to collect data, package it into some form of standard payload, and then insert it into the transmission packet.
+
+\subsection{Timing}
+Accurate timing is required for two sections of this project: keeping an accurate clock for modulating data, and making sure transmissions occur at regular intervals.
+
+The XMega contains a high accuracy 32.768kHz Real-time clock crystal for timekeeping, but it is possible that this will drift with temperature causing a system clock to become inaccurate over the course of a few months. The degree of inaccuracy can only be determined by testing.
+
+In the Antarctic research application, a GPS receiver will be connected to the system. Since the GPS provides accurate timing data, this provides a means to re-synchronise a system clock at regular intervals. 
+
+Since the transmitter will send data at least once a day, it may be possible to compensate for clock drift on the receiving end, reducing complexity in the transmitter. Slight deviations in transmission bit-rate can also be compensated for at the receiving end. 
+
+\section{Testing}
+As mentioned in Section \ref{coldtest}, testing of some components at cold temperatures has already been conducted, but much more testing is still needed. All of the RF stage will need to be tested at low temperatures to determine how the gain changes, or if any of the amplifiers become unstable. More XMega clock options need to be tested, to find the clock source with highest accuracy over a wide range of temperatures. 
+
+To test the transmitter within Australia, it will need to be operated on the amateur radio bands (80m or 40m wavelength), since transmission on the 6MHz ISM band is not permitted. To transmit on these bands using non-commercial equipment, an advanced amateur license will be required. The projects supervisor (Dr. Chris Coleman) has the necessary license, but to avoid him needing to be present for each test I (Mark Jessop) will attempt to gain an amateur license over the semester break.
+
+\section{Schedule Status}
+Table \ref{timeline} shows the project schedule, and which tasks have been completed. The project is currently on schedule, and is on track to be completed in time for the final seminar during the Semester 2 Mid-Semester break.
+\begin{table}[h!]
+\begin{center}
+\caption{Project Timeline}
+\label{timeline}
+\begin{tabular}{l|r}
+\textbf{Task} & \textbf{Completion Date}\\
+\hline
+& \textbf{Semester 1}\\
+Background Research & COMPLETE\\
+High-level Design & COMPLETE\\
+Project Sizing \& Simulation & COMPLETE\\
+Component Testing & Partially Complete\\
+Hardware Design& \\
+\hspace{15pt}CPU \& Buffer & COMPLETE\\
+\hspace{15pt}RF Signal Generator & COMPLETE\\
+\hspace{15pt}RF Power Amplifier & In Progress\\
+\hspace{15pt}Data Tap & On Hold\\
+& \textbf{Semester 2}\\
+\hspace{15pt}Antenna Design & Week 1\\
+Software & In Progress\\
+Prototype Completion & Week 3\\
+Testing \& Optimisation & Week 7\\
+\end{tabular}
+\end{center}
+\end{table}
+
+\section{Budget Status}
+As of Week 12 Semester 1, \$75.80 of the \$250 budget has been spent, leaving \$174.20 remaining. It is anticipated that very little of the remaining budget will need to be spent, as the majority the required components have already been bought.
+
+A cost breakdown appears below:
+\begin{itemize}
+\item AT-XMega128A1 Breakout Board - \$30.80
+\item AD9834 DDS IC $\times$ 2 - \$26.30
+\item TSSOP-20 to Pin Header Breakout Board - \$13.70
+\item Dry Ice for cold testing - $\sim$\$5
+\end{itemize}
+
+\newpage
+\begin{appendices}
+%\appendix
+\section{Original High-Level Overview}
+\begin{figure}[h!]
+\begin{center}
+\xymatrix{
+*++[F]{\hbox{Sensors}} \ar@{=}[dd]_{\hbox{\tiny{Data Bus}}} & \\
+& *++[F]{\hbox{Buffer}} \ar[d]\\
+*++[F]\hbox{{Data\ Tap}} \ar@{=>}[d] \ar[r] & *++[F]{\hbox{CPU}} \ar[u] \ar[r] & *++[F]{\txt{RF\ Signal\\Generator}} \ar[r] & *++[F]{\txt{Power\\Amp}} \ar[r] & \txt{Antenna}\\
+*++[F]{\txt{Storage}}&\\
+}
+\caption{Original High-Level Block Diagram}
+\label{block_diag}
+\end{center}
+\end{figure}
+
+\newpage
+\section{Dry Ice Testing}
+To test the AT-XMEGA128A1 breakout board the chip was programmed to output the internal clock signal on a GPIO pin, and one of the UARTs was programmed to continually send out ``Hello World" at 9600 baud. A LED was also attached to the board, and the chip programmed to flash it as 1Hz. The breakout board assembly was wrapped in bubble wrap (for insulation) with a ribbon cable exiting the insulation to carry the data lines. The insulated board was then placed in a small foam Eski containing approximately 3KG of dry ice. Over the course of an hour, the chip cooled down to -49$^\circ$C, where it stayed for approximately 20 minutes. After shuffling the dry ice slightly, the chip cooled down a further 5$^\circ$C, to -54$^\circ$C at which point the test was aborted. Throughout the test the clock frequency and chip temperature were measured, to produce the plot in Figure \ref{32mhzrc}.
+
+
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=13cm]{32MHzRC.pdf}
+\caption{AT-XMEGA128A1 RC Clock Drift}
+\label{32mhzrc}
+\end{center}
+\end{figure}
+
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=13cm]{xmega_4.jpg}
+\caption{AT-XMEGA128A1 Breakout Board Wrapped in Insulation}
+\label{xmega_4}
+\end{center}
+\end{figure}
+
+\newpage
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=13cm]{xmega_2.jpg}
+\caption{AT-XMEGA128A1 Breakout Board Warming up after testing.}
+\label{xmega_2}
+\end{center}
+\end{figure}
+
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=11cm]{xmega_3.jpg}
+\caption{Ice forming on the XMEGA's pin headers after testing.}
+\label{xmega_3}
+\end{center}
+\end{figure}
+
+\newpage
+\section{AD9834 Breakout Board}
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=12cm]{AD9834_Schem.pdf}
+\caption{AD9834 Breakout Board Schematic}
+\label{ad9834_schem}
+\end{center}
+\end{figure}
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=12cm]{AD9834_PCB.pdf}
+\caption{AD9834 Breakout Board PCB Artwork}
+\label{ad9834_PCB}
+\end{center}
+\end{figure}
+
+\end{appendices}
+\end{document}
