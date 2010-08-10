@@ -1,0 +1,126 @@
+\documentclass[a4paper,12pt]{article}
+%\linespread{1.3}
+\usepackage[left=2.5cm,top=2cm,right=2.5cm,bottom=2cm]{geometry}
+
+%\usepackage{palatino}
+
+\usepackage{xypic}
+\usepackage{natbib}
+\bibliographystyle{plainnat}
+\bibpunct{[}{]}{;}{s}{,}{,}
+
+\usepackage[header,page,titletoc]{appendix}
+\renewcommand{\appendixname}{Appendix}
+%\renewcommand{\appendixtocname}{List of appendices}
+
+\usepackage[colorlinks=true,linkcolor=black,citecolor=black,filecolor=black,menucolor=black,urlcolor=black]{hyperref}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{pdfpages}
+\usepackage{fancyhdr}
+\usepackage{pict2e}
+\setlength{\headheight}{15.2pt}
+
+%\pagestyle{fancy}
+\usepackage{cite}
+%
+% fix citations to be IEEE style
+\def\citepunct{], [}
+\def\citedash{]--[}
+
+\newcommand{\nonumsection}[1]{
+\section{#1}
+%\addcontentsline{toc}{section}{#1}
+}
+
+%Used to change "Abstract" to "Executive Summary"
+
+% Paragraph Settings
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+
+\begin{document}
+\thispagestyle{empty}
+\vspace*{\fill}
+\includegraphics[width=10cm]{./UofAlogo.pdf}\\
+\noindent
+\textsc{
+\textsc{School of Electrical \& Electronic Engineering}\\
+Adelaide, South Australia, 5005\\ \\
+}
+\noindent
+\Large{\textbf{
+ELEC ENG 4039A/B \\
+Honours Project\\
+	}}
+	\Large{
+		Temperature Controlled Step-Infusion Mash Tun \\
+	}
+	\small{\textbf{}}
+	\ \\
+	\ \\
+	\Large{\textbf{
+		Peer Review \\
+	}}
+	\ \\
+	\small{\textbf{
+		Written by: \\}
+		Mark Jessop \\
+		1163807
+	}
+	\ \\
+	\ \\
+	Date Submitted: April 28, 2010 \\
+	\textbf{Deliver to: Dr Lang White}\\
+ %\end{center}
+ \vspace*{\fill}
+
+\newpage
+
+\section{Context \& Objectives}
+The aim of the project under review is to design and build a temperature controlled `mash tun'. This device is effectively a large liquid-holding tank, in which the temperature is controlled to transition the liquid through series of temperature changes.  The application of this device is for brewing beer, and ideally the system will be marketed to home-brewers. 
+
+\section{Project Approach}
+The project team (Hayden Stringer \& Allan Cordner) have clearly separated the project into hardware and software components. Much of the mash-tun hardware has already been developed, and the control system hardware will be built from pre-existing modules. This leaves software development as the bulk of the project. 
+
+Milestones have been clearly stated, and appear below:
+
+\begin{itemize}
+\item Hardware \& Software Specifications Completed - 25/05/2010
+\item Software integration with existing hardware - 11/06/2010
+\item User Interface Completion - 31/07/2010
+\item Prototype Completion - 31/08/2010
+\item Demonstration \& Hand-in - 25/10/2010
+\end{itemize}
+
+Work appears to have been evenly divided between group members, with the division of work clearly stated. Software develop has been split 50/50, and hardware about 60/40, with Allan working more on the micro-controller circuitry.
+
+\section{Project Review}
+As much of the hardware has already been developed, the project will probably have an embedded systems focus, with the induction heater being the main hardware component.  
+
+The milestones specified for the project should be easily achievable, assuming no problems with the existing hardware. The temperature control system appears to be very simple, and should pose no challenge (\texttt{if(measureTemp()>value) heater(OFF); else heater(ON);}).
+If existing LCD display libraries are used, software development will probably take much less time than expected. Prior experience with similar projects has shown that once the software design has been fleshed out, a working LCD interface can be `hacked' together in a very short amount of time. This would give more time for other sections of the project, such as brewing the ever-important beer.
+
+The project objectives should be achievable in the timeframe allotted, and I look forward to tasting a batch of beer produced with the system.
+
+\subsection{Omissions}
+
+The report is very thorough in its listing of project requirement and proposed approach, but the most glaring omission is that of health \& safety concerns. Induction heaters can be dangerous devices (burns, electric shock), and this should have been mentioned. Other risks to the project have been mentioned throughout the report, but it would have been helpful to have them listed in a separate section. Another risk to note would be the poisoning of the EEE faculty with a batch of badly brewed beer. Hopefully the tutelage of an experienced beer brewer (Dr L. White) will prevent this from occurring!
+
+\subsection{Suggestions}
+\subsubsection{Hardware}
+Get this out of the way as soon as possible. Once you have the hardware working the rest is just software, which should be relatively easy. The micro-controller can probably be pieced together from pre-existing boards, so the work required should be minimal.
+
+\subsubsection{Software}
+Get started on programming the MSP430 $\mu$C (micro-controller) as soon as you can. It will probably be programmed in C, but there will be device-specific quirks to learn. If you have a development kit, start by making small programs to learn how to use various features of the $\mu$C, then move up. You will probably be able to use the code you've written during the learning process in the final system.
+
+To make code easier to read and understand, abstract everything away into functions. For example, you could have a function called `setTemp(int temp)' which takes the required temperature and sets the control system parameters. 
+
+\section{Document Presentation}
+The report was well structured and presented well. The document was sectioned well, make it easy to access information quickly. Diagrams, while few and far between, gave a good illustration of the layout of the project.
+
+The language used in the report was very professional, and easy to read. Beer-brewing terminology was explained reasonably well. There were no obvious spelling or grammar errors. 
+
+References, while not all written according to the IEEE standard, were provided at the end of the report. Many of these references also appeared as footnotes, which provided a quick way of checking information sources.
+
+\end{document}

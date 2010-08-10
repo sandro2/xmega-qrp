@@ -1,0 +1,247 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[left=4cm,top=2cm,right=4cm]{geometry}           % See geometry.pdf to learn the layout options. There are lots.
+\geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
+%\geometry{landscape}                % Activate for for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{epstopdf}
+\usepackage{hyperref}
+\usepackage{xypic}
+
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+%\date{}                                           % Activate to display a given date or no date
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+
+\begin{document}
+
+ \begin{center}
+	\textsc{\Large{
+		A Radio Relay System for Remote Sensors in the Antarctic
+	}}
+	\ \\
+	\Large{
+		Project Log-Book
+	}
+	\ \\
+	\large{
+		Mark Jessop, 1163807
+	}
+	\ \\
+	\today
+ \end{center}
+ SVN Note: Username \& Password are both `public' for read-only access.
+ \tableofcontents
+ \newpage
+ 
+ 
+\section{Semester 1}
+\subsection{Progress up to end of Week 3}
+\begin{itemize}
+\item Met with project supervisor (Dr Chris Coleman)
+\item Initial background research completed (more information on existing sensor device needed).
+\item Chris has recommended `Ionospheric Radio' by Kenneth Davies as a reference text. All copies are currently booked out from the Uni library.
+\item Block diagram of project appears in Figure \ref{block_diag}
+\item Initial bandwidth calculations complete. 600bits/s should be achievable. Excerpt from proposal seminar follows:
+\end{itemize}
+\begin{figure}[h]
+\xymatrix{
+*++[F]{\hbox{Sensors}} \ar@{=}[dd]_{\hbox{\tiny{Data Bus}}} & \\
+& *++[F]{\hbox{Buffer}} \ar[d]\\
+*++[F]\hbox{{Data\ Tap}} \ar@{=>}[d] \ar[r] & *++[F]{\hbox{CPU}} \ar[u] \ar[r] & *++[F]{\txt{RF\ Signal\\Generator}} \ar[r] & *++[F]{\txt{Power\\Amp}} \ar[r] & \txt{Antenna}\\
+*++[F]{Storage}&\\
+}
+\caption{Initial Block Diagram of project}
+\label{block_diag}
+\end{figure}
+\subsubsection{Initial Bandwidth \& Power Calculations}
+If we make a few assumptions, we can use the Friis transmission equation and the Shannon-Hartley Theorem to calculate the theoretical maximum bit rate of a radio link.
+
+Assume:
+\begin{itemize}
+\item 200km Distance between TX and RX (on ground)
+\item 400km radio path (via near-vertical skywave)
+\item 5MHz Transmission frequency ($\lambda$ = 60m)
+\item No ionospheric absorption loss (Not Realistic!)
+\item Dipole antennas one each end ($G_t = G_r = 1.5$)
+\item 10dB SNR required
+\item -114dB$^{[2]}$ background noise at 5MHz
+\end{itemize}
+Using 1W transmission power, we can calculate the power at the receiving antenna:
+\begin{flalign*}
+P_r &= \frac{P_t G_t G_r}{(4\pi R /\lambda)^2}\\
+&= \frac{1 \times 1.5 \times 1.5}{(4\pi \times 400000 / 60)^2} = 0.3206 nW = -94.94 dB\\
+SNR &= 114 - 94.94 = 19.06dB = 80.54\\
+\end{flalign*}
+We can use the Shannon-Hartley theorem to calculate the theoretical maximum channel capacity of the link:
+\[C = B \log_2 (1 + SNR) \]
+Where $C$ is the channel capacity (in bits/s) and B is the signal bandwidth. Assuming Binary FSK modulation is used with a 600Hz frequency shift, we calculate the maximum channel capacity as:
+\[C = 600 \log_2 (1 + 80.54) = 3809.66 \mbox{ bits/s}\]
+
+To get a rough idea of the power usage, let us assume we are transmitting at 600 bit/s for one hour (263.67 kB of data).
+
+The power usage of some devices that could be used are as follows:
+\begin{itemize}
+\item Microcontroller - 75mW in active mode $^{[3]}$
+\item Signal Generator - 40mW when active $^{[4]}$
+\item Power Amplifier - 1W (idealised)
+\end{itemize}
+So under these ideal conditions, the transmitter will draw 1.115W when transmitting, which is 4014 Joules of energy for one hour of transmission. 
+
+\subsubsection{Proposal Seminar}
+Complete! Presentation available here:
+
+\url{https://fyp.darklomax.org/Documentation/ProposalSeminar/}
+
+\subsubsection{D-Layer Loss Formula}
+\[ L(f_{ob}) = \frac{677.2 I \sec{\phi_o}}{(f_{ob} + f_I)^{1.98} + 10.2}\]
+\[ \mbox{Where } I = -0.04 + \mbox{exp}(-2.937 + 0.8445 f_oE) \]
+$f_{ob} = f_v \sec{\phi_v}$, where $\phi_v$ is the angle of incidence. In pretty much all Near-Vertical calculations $\sec{\phi_v} = 1$. $f_I$ is the `longitudinal component of gyrofrequency' (ask Chris!), and $f_oE$ is the E-layer critical frequency.
+
+\subsection{2010-03-20 $\to$ 2010-03-21 (Week 3 Weekend)}
+\subsubsection{MSP430 Microcontrollers}
+Followed up on comment by Said about Texas Instruments (TI) microcontrollers. Many versions of the MSP430 core have \textit{extremely} low power usage! ($330\mu A/MHz$) Varying RAM/ROM/Flash memory versions are available. Information page: 
+
+\url{http://focus.ti.com/docs/prod/folders/print/msp430f157.html}
+
+Micro is programmed via JTAG, and has a few different (windows only) compilers available. There is also a GCC toolchain available that is worth investigating. Apparently Pavel likes using MSP430's, so he might be able to give me some information on compilers.
+
+There is a free compiler available (IAR Kickstart), which supports using up to 4K of ROM. This will probably be enough.
+
+Also TI has their own compiler which does up to 16K:
+\url{http://www.ti.com/ccs}
+
+The MSP430 still only has an operational rating down to $-40^\circ$C, ($-55^\circ$C in storage). Testing/screening will be required to see if they will operate at these extremes.
+
+
+\subsubsection{Thermal stress testing}
+Freezers in bio-med won't be usable for testing, due to biohazard problems. Chemical engineering is a maybe, will need to follow up. If nothing is available, then dry ice can be used. This will bring in some safety concerns, first being freezer-burn, and second being where to do it. Again, chemical engineering should have the facilities for this.
+
+\subsection{2010-03-22}
+Consulted with Pavel today about circuit boards at $<-40^\circ$C, and micro-controllers. Pavel recommended testing various circuit boards at low temperatures (with no components on), and examining the boards for faults after exposure to low temperatures. 2 boards for testing were provided, one produced using university equipment, and one produced externally (and with 6 layers!). 
+
+In regards to micro-controllers, Pavel does recommend the MSP430, but made the point that the power usage of the micro-controller is effectively insignificant compared to the power usage of the RF amplifier. The specs of the micros in low power modes are fairly similar anyway, but the ATMega AVR's don't have DACs (which could be used to control a voltage controlled amplifier). 
+
+Ian from the Elec Eng Lab recommended slipping a test PCB into some foam, and then chilling it in dry ice, as placing a PCB directly onto dry ice will result in a temperature differential and likely breakage.
+
+I've started on a breakout board for an AD9834, with the circuit schematic completed, and the PCB design partially finished. I need to learn how to place ground planes properly to be able to finish it.
+
+\subsection{2010-03-24}
+Received the following from Danny today:
+\begin{itemize}
+\item 2x AD9834 DDS's (\$16.13 each)
+\item 2x DS18B20 1-Wire Temperature Sensors (\$8.29 each)
+\item 1x TI MSP430 EZ430-F2013 USB Development tool (\$33.96)
+\end{itemize}
+
+At the moment, only the AD9834's will be charged to the project budget, as all the other parts will be used around the department anyway. Of course, if I choose to stress-test the MSP430 board and it fails, the cost will come out of the budget.
+
+I have used my Arduino Development board to read temperature data from the DS18B20 sensor and write to a serial terminal. I've also made up a makeshift temperature sensors (one of the temperature sensors attached to the end of some twisted pair wire). This sensor has been tested in my home freezer, and is has been sitting at -12 degrees C for about 20 minutes without problems. I have noted that if the update rate is too high the sensor cannot keep up (it takes about 750ms to read the temperature).
+
+The TI MSP430 USB dev kit is rather limited (only having 2K of Flash memory and 128B of RAM), and will probably not be usable for the final prototype (if the MSP430 is chosen). However, it will serve as a nice introduction to the MSP430 development environment.
+
+Discussed with Chris about the possibility of a voltage controlled amplifier, he said it was better to control the gain further back in the chain - at the signal generator. This is certainly possible - the current sources range is controlled by a resistor between pin 1 and AGND. In my breakout board design this is $6.8k\Omega$, which produces a full scale output current of 3mA. To control the output power, a method of changing this resistor needs to be found. One possible solution is the Analog Devices AD5246, which is a I2C controlled resistor (and it only draws $5\mu A$)!
+
+This particular device isn't available from AD until the 9th of April, as it appears to be a very new device. I'm investigating getting samples instead of buying one.
+
+\subsection{2010-03-30}
+Design document is progressing well, will be completed on time for submission on Wednesday the 31st.
+
+Discovered the AT XMEGA Series today, this looks like the perfect chip to use in the project! Power usage is very low, and the chip is very very powerful!
+
+\subsection{2010-03-31}
+Received e-mail back from contact at Codan:
+
+\texttt{Spoke to one of the engineers here and he said that he has had radios down to -50 degrees on a standard fibreglass PCB with normal solder and it has been fine, it's been the components that cause issues. So an ordinary PCB should work fine, just use some decent solder (ask pavel what he has) and it should be fine.
+The only issue you may have with the PCB is if you are using frequencies over 1ghz, and that's a general PCB design issue regardless of temperature since track length and angles start to become an actual issue.
+The components will probably work outsite their specifications but no guarantee on what happens with the frequency drift.
+cheers,
+Colin
+}
+
+This information suggests that the PCB issues shouldn't be issues at all!
+
+Also, Sparkfun has a breakout board for the AT-Xmega128A1:
+\url{http://www.sparkfun.com/commerce/product_info.php?products_id=9546}
+
+It's also at littlebird, and should solve the problem of making a breakout board for the chip!
+
+\subsection{2010-04-15}
+Back from holidays, and the AT-Xmega breakout board has been ordered. 
+
+A source for dry ice has been found - the University Chemistry Store. For \$3/kg, I can obtain dry ice pellets. The initial round of testing (PCBs and a simple ATtiny2313 based breakout board) will be conducted the first week back, whenever I can find enough time.
+
+\subsection{2010-04-19}
+The data loss risk just became a reality. At 6:30pm on Sunday the 18th of April, the Hard Drive in my laptop failed, trashing all data on the drive. If I had not been making backups of all my data, the whole terms worth of work would have been lost.
+
+There are no backups of my Windows partition, only the OSX partition, but this shouldn't be a problem as all important project data (PCB designs) is stored on the projects SVN repository.
+
+I'm delaying the dry ice testing until Thursday to give me time to get everything reinstalled and setup again. In particular I need to reinstall Windows, and get Altium Designer and AVR Studio setup again.
+
+\subsection{2010-04-25}
+Xmega board was received on Friday. Today, I've soldered on pin headers, and got the chip up and running. I'm now in the process of learning the obscure art of AVR-C. So far I've got it set up to run at 1MHz, output the clock on a pin, and flash a LED. This is enough for testing!
+
+\subsection{2010-04-27}
+Confirmed that the Chemistry department will supply me with dry ice, at about \$2.10 per KG. Will need to bring an Eski, gloves, and a `project code', which the Elec Eng storeman knows.
+
+\subsection{2010-04-29}
+First round of dry ice testing conducted! The XMega board was insulated, the cooled down to -54$^\circ$C without failure! The XMega was run with just the 32MHz internal clock in use, and was drawing about 30mA throughout the entire experiment. This is probably the reason why I couldn't get it any colder than -54$^\circ$C. The internal clock frequency drifted upwards to 33MHz.
+A number of PCBs supplied by Pavel were also left in dry ice overnight, and showed no signs of damage.
+
+More information on these tests appears in the interim progress report.
+
+\subsection{2010-05-03}
+Work on a breakout board for the AD9834 has begun! I've acquired a TSSOP-20 to pin-header board for the AD9834 chip, so the breakout board can be single sided and entirely through-hole. Alban (from the workshop) has soldered the AD9834 to the adaptor board, so I'll be able to do the rest of the soldering myself. If I design the board correctly (0.5mm clearance \& track widths), it can be fabricated using the milling machine in the Elec Eng workshop, as an alternative to Pavel's equipment. 
+
+\subsection{2010-05-12}
+Routing for the AD9834 breakout board is complete! Now I just need to check it, and see about getting it manufactured.
+
+Also currently researching designs for power amplifiers. Since I don't have much knowledge of RF power amp design, I'm looking at existing amateur radio designs. Many amplifier designs exist for stupidly high output power levels, but surprisingly not many for low power outputs.
+
+\subsection{2010-05-21}
+Since the workshop milling machine is currently in pieces, I've sent the PCB artwork to Pavel, since his queue is rather small at the moment.
+
+Chris has recommended a MOSFET based design for the power amp's final stage, which makes sense with what I understand about Class C amplifiers (On-off operation, duty cycle determining efficiency). 
+
+Also, for an antenna for testing, Chris has recommended a Comet HF vertical. It's expensive ($\sim$USD\$450), but a lot of the cost will be sourced from the department since it can be used by many other projects. The antennas efficiency as compared to a dipole won't be that good, but it should be sufficient for testing the project!
+
+\subsection{2010-05-23}
+Work on the Interim Progress Report is progressing nicely, I've completed a large chunk of it now. The software design section is really becoming a way for me to formalise the ideas I've been having about how to process the captured data. 
+
+\subsection{2010-05-25}
+Have found a few power amp designed based around the IRF510 FET, which can be adapted for this project. Simulation doesn't work very well for these circuits, so I'll probably build a prototype for experimentation. 
+
+I'll have to use a pre-amp circuit to boost the extremely low power output from the AD9834 before the final amp stage. I was looking at some Analog Devices Digitally Controlled Amplifiers, but I'm not entirely understanding their operation, which I don't really like.
+
+I've found a DDS kit based on the AD9851, an older version of the AD9834 family: \url{http://midnightdesignsolutions.com/dds60/index.html}. What's interesting about this kit is the pre-amp attached to the DDS - It's op-amp based! This is a circuit that I can understand, and makes sense to me. The op-amp is an AD8008 dual op-amp, and the gain is controllable via a potentiometer - I can replace this with a digital pot and make it controllable in software!
+
+According to the design, it can output 4Vp-p, with a power level of about 40mW. It's designed for a 50$\Omega$ input impedance, but I should be able to modify it to work with the 200$\Omega$ impedance from the AD9834 board. It could be interesting to try some of the really low-rate data modes (JT65) at 40mW, and see what kind of contacts I can get.
+
+\subsection{2010-05-31}
+Discovered an error in the AD9834 breakout PCB. Luckily, Pavel hadn't gotten too far into fabricating it yet! I've fixed the error, and sent the updated design off to Pavel. He's going to cut out what he did of the original board so I can have it as a reminder of my very first PCB design error :)
+
+I've started making some footprints for components so I can do up a pre-amp board design. I'll see if I can make the impedance matching circuit have enough of a low pass effect to kill the clock feedthrough nicely. 
+
+\subsection{2010-07-30}
+Long time since last update... Here are a few things that have happened.
+
+\begin{itemize}
+\item Exams. 3 Credits, a Distinction, and a High Distinction!
+\item AD9834 breakout didn't work. Suspecting MCLK issues, I tried multiple ways of clocking the AD9834, to no avail. Have switched to using the AD9835 breakout board from Sparkfun until this is fixed.
+\item Pre-Amp designed. Vero-board prototype showed the output swinging from rail to rail - have been unable to determine the problem. PCB version will be easier to debug.
+\end{itemize}
+
+Now, to last week:
+\begin{itemize}
+\item Successfully ported my Arduino AD9835 library to the XMega. Testing shows the AD9835 can be re-programmed at an absolute maximum rate of 7352.9Hz (using a 16MHz SPI clock), hence allowing a MFSK symbol rate of around 7300 baud.
+\item Using the FSEL pin, data rates for BFSK modes can be pushed much higher than this.
+\end{itemize}
+
+
+
+
+\end{document}
