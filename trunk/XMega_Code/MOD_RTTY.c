@@ -11,11 +11,13 @@
 #include "MOD_RTTY.h"
 
 double RTTY_Delay_Time = 20; // Delay between bit changes, in ms
+uint8_t stop_bits = 1;
 
-void RTTY_Setup(uint32_t base_freq, uint32_t shift_freq, uint16_t baud_rate){
+void RTTY_Setup(uint32_t base_freq, uint32_t shift_freq, uint16_t baud_rate,  uint8_t stops){
    uint32_t LOGICAL_0 = base_freq;
    uint32_t LOGICAL_1 = base_freq + shift_freq;
    RTTY_Delay_Time = 1000.0 / (double)baud_rate;
+   stop_bits = stops;
 
    AD9835_Setup();
    AD9835_UseFSEL(0);
@@ -50,8 +52,9 @@ void RTTY_TXByte(uint8_t data){
     }
     
     // Send Stop bits
-    RTTY_TXBit(1);
-    RTTY_TXBit(1);
+    for( i = 0; i < stop_bits; i++){
+        RTTY_TXBit(1);
+    }
 }
 
 void RTTY_TXString(char *string) {
