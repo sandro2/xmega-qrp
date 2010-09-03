@@ -30,7 +30,7 @@ unsigned int checksum(unsigned char* data, unsigned int len){
 int main(void)
 {
   Config32MHzClock();
-  PORTF.DIRSET = 0xFF;
+  PORTE.DIRSET = 0xFF;
 
   CLK.PSCTRL = 0x00; // no division on peripheral clock
   
@@ -39,35 +39,34 @@ int main(void)
   uint16_t buffer_ptr = buffer;
   
  
-  Setup_PortF_Usart();
+  //Setup_PortF_Usart();
  
     _delay_ms(500);
 
-    RTTY_Setup(500, 850, 300, 1); // 1000Hz Carrier, 170Hz Shift, 50 baud, 1 stop bit
+    RTTY_Setup(7500000, 200, 100, 1); // 1000Hz Carrier, 170Hz Shift, 50 baud, 1 stop bit
     //Morse_Setup(20, 5000000);
     
    AD9835_Awake();
     
    char *txdata = "abcd";
-   unsigned int crc_val = checksum(txdata, 4);
+   unsigned int adc_val = 0;
   
     
    // base64enc(buffer, txdata, strlen(txdata));
     
+    uint8_t count = 0;
     
     
-    
-    int adcb_val = 0;
-    char adcb_str[16];
+    char int_str[16];
     while(1){
-   
-        adcb_val = DoADC_B(0,0,0,0);
-        itoa(crc_val, adcb_str, 10);
-        RTTY_TXString("CRC: ");
-        RTTY_TXString(adcb_str);
+        adc_val = DoADC_A(0,0,0,0);
+        itoa(adc_val, int_str, 10);
+        RTTY_TXString("AD9835 Sig-Gen Test - ADC_B: ");
+        RTTY_TXString(int_str);
         RTTY_TXString("\n");
-        UsartWriteString("\n\r\n\rTesting 12345\n ");
         _delay_ms(500);
+        PORTE.OUTCLR = 0xFF;
+        PORTE.OUTSET = ~count++;
     
     }
     

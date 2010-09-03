@@ -52,13 +52,14 @@ void Config2MHzClock(void)
 void Config32KHzClock(void)
 {
   CCP = CCP_IOREG_gc; //Security Signature to modify clock 
-  // initialize clock source to be 32MHz internal oscillator (no PLL)
+  // initialize clock source to be 32KHz internal oscillator (no PLL)
   OSC.CTRL = OSC_RC32KEN_bm; // enable internal 32MHz oscillator
   while(!(OSC.STATUS & OSC_RC32KRDY_bm)); // wait for oscillator ready
   CCP = CCP_IOREG_gc; //Security Signature to modify clock 
   CLK.CTRL = CLK_SCLKSEL_RC32K_gc; //select sysclock 32MHz osc
 // serial port doesn't work at this clk speed so demo program will stop
 };
+
 
 int DoOutput(char port, unsigned int pin, unsigned int val)
 {
