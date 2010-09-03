@@ -31,10 +31,10 @@ void AD9835_SelectFREG(int reg_number){
 	}
 	else{
 		if(reg_number == 0){
-			PORTC.OUTCLR = FSEL; // FREG0
+			PORTD.OUTCLR = FSEL; // FREG0
 		}
 		else{
-			PORTC.OUTSET = FSEL; // FREG1
+			PORTD.OUTSET = FSEL; // FREG1
 		}
 	}
 }
@@ -63,38 +63,38 @@ void AD9835_SendWord(uint16_t data){
 	uint16_t temp;
 	uint16_t bitMask = 0x8000;
 	//digitalWrite(SCLK_PIN,HIGH);
-	PORTC.OUTSET = SCLK;
+	PORTD.OUTSET = SCLK;
   
 	//digitalWrite(FSYNC_PIN,HIGH);
-	PORTC.OUTSET = FSYNC;
+	PORTD.OUTSET = FSYNC;
 	//digitalWrite(FSYNC_PIN,LOW); // Set FSYNC low to signify we are sending data.
-	PORTC.OUTCLR = FSYNC;
+	PORTD.OUTCLR = FSYNC;
   
 	for(int i = 0; i<16; i++){
     	temp = data;
     	if((data&bitMask)==0){
     	    //digitalWrite(SDATA_PIN,LOW);
-    	    PORTC.OUTCLR = SDATA;
+    	    PORTD.OUTCLR = SDATA;
     	}
     	else{
     	    //digitalWrite(SDATA_PIN,HIGH);
-    	    PORTC.OUTSET = SDATA;
+    	    PORTD.OUTSET = SDATA;
     	}
     	bitMask = bitMask>>1;
     
 		//digitalWrite(SCLK_PIN,HIGH); // Pulse the clock
   	  	//digitalWrite(SCLK_PIN,LOW);
-  	  	PORTC.OUTSET = SCLK;
-  	  	PORTC.OUTCLR = SCLK;
+  	  	PORTD.OUTSET = SCLK;
+  	  	PORTD.OUTCLR = SCLK;
   	  	if(F_CPU>2000000){
   	  	    _delay_us(1);
   	  	}
-  	  	PORTC.OUTSET = SCLK;
+  	  	PORTD.OUTSET = SCLK;
    	 	//digitalWrite(SCLK_PIN,HIGH);
     
 	}
 	//digitalWrite(FSYNC_PIN,HIGH); // Set FSYNC high to signify we have finished.
-	PORTC.OUTSET = FSYNC;
+	PORTD.OUTSET = FSYNC;
 }
 
 void AD9835_SetFreq(uint32_t freq){
@@ -163,7 +163,7 @@ void AD9835_UseFSEL(int c){
 */
 void AD9835_Setup(){
 	/* Set Pins to be outputs */
-	PORTC.DIRSET = FSYNC | FSEL | PSEL | SDATA | SCLK;
+	PORTD.DIRSET = FSYNC | FSEL | PSEL | SDATA | SCLK;
 	
 	/* Setup the SS (FSYNC) Pin */
 //	PORTC.DIRSET = FSYNC;
@@ -174,8 +174,8 @@ void AD9835_Setup(){
 
 	
 	/* Set Output Pins */
-    PORTC.OUTSET = FSYNC;
-    PORTC.OUTCLR = FSEL;
+    PORTD.OUTSET = FSYNC;
+    PORTD.OUTCLR = FSEL;
 
 	/* Instantiate pointer to ssPort. */
 	//*ssPort = &PORTC;
