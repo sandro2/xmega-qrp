@@ -10,7 +10,7 @@
 #include "AD9835_Xmega.h"
 #include "MOD_RTTY.h"
 
-double RTTY_Delay_Time = 109; // Delay between bit changes, in ms
+uint16_t RTTY_Delay_Time = 109; // Delay between bit changes, in ms
 uint8_t stop_bits = 1;
 
 void RTTY_Setup(uint32_t base_freq, uint32_t shift_freq, uint16_t baud_rate,  uint8_t stops){
@@ -59,7 +59,7 @@ void RTTY_TXByte(uint8_t data){
 }
 
 void RTTY_TXString(char *string) {
-    Setup32KHzRTC(109);//RTTY_Delay_Time);
+    Setup32KHzRTC(RTTY_Delay_Time);
     RTTY_Delay();
 
 	for (int i = 0; i < strlen(string); i++) {
