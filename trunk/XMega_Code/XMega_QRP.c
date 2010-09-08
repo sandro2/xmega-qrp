@@ -8,12 +8,11 @@
 #define F_CPU 32000000UL
 #include <util/delay.h>
 #include <avr/sleep.h>
-#include "avr_compiler.h"
-#include "xmega_lib.h"
-#include "MOD_RTTY.h"
-#include "MOD_Morse.h"
-#include "base64_enc.h"
-#include "crc16.h"
+#include "include/avr_compiler.h"
+#include "include/xmega_lib.h"
+#include "include/MOD_RTTY.h"
+#include "include/MOD_Morse.h"
+#include "include/base64_enc.h"
 
 unsigned int checksum(unsigned char* data, unsigned int len){
     unsigned int buff = 0;
