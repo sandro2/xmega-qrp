@@ -42,7 +42,7 @@ int main(void)
  
     _delay_ms(500);
 
-    RTTY_Setup(7500000, 200, 100, 1); // 1000Hz Carrier, 170Hz Shift, 50 baud, 1 stop bit
+    RTTY_Setup(7500000, 450, 300, 1); // 1000Hz Carrier, 170Hz Shift, 50 baud, 1 stop bit
     //Morse_Setup(20, 5000000);
     
    AD9835_Awake();
