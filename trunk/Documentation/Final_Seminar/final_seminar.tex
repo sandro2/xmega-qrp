@@ -92,9 +92,86 @@
 \item Dedicated pins for switching between registers.
 \item Using 16MHz SPI clock, can reprogram at 7500Hz.
 \end{itemize}
+}
+
+\subsection{Power Amplifier}
+\frame{
+\frametitle{Power Amplifier}
+\begin{itemize}
+\item Op-Amp based pre-amplifier
+\item Class E MOSFET Power Amplifier
+\end{itemize}
+}
+
+\section{Software}
+\subsection{Overview}
+\frame{
+\frametitle{Software Overview}
+\begin{itemize}
+\item Coded entirely in C.
+\item Morse, RTTY (FSK) and DominoEX modulation implemented.
+\item Data acquisition from onboard ADCs, UARTs, or I$^2$C Devices.
+\end{itemize}
+}
+
+\subsection{Morse}
+\frame{
+\frametitle{Morse Code \& QRSS}
 
 
+\begin{itemize}
+\item Morse Code at very slow speeds can be received over very long distances.
+\item Signals are pulled out of the noise floor with DSP techniques.
+\item Very low signal bandwidth.
+\item Not very useful for transmitting lots of data.
+\item Great for a beacon!
+\end{itemize}
 
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=0.8\textwidth]{images/tag60sec.png}
+  \end{center}
+  \caption{QRSS Morse Broadcast, signal level -23dB below the noise floor.}
+  \label{qrss}
+\end{figure}
+}
+
+\subsection{RTTY}
+\frame{
+\frametitle{RTTY (FSK)}
+\begin{itemize}
+\item FSK Modulation, with start and stop bits.
+\item Implemented to operate between 50 and 300 baud (symbols/sec).
+\item Carrier Shift programmable from 170 to 425Hz.
+\item Plenty of existing software to decode RTTY (i.e. fldigi)
+\end{itemize}
+
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=0.8\textwidth]{images/rtty.png}
+  \end{center}
+  \caption{300 Baud RTTY, with 425Hz Carrier Shift}
+  \label{rtty}
+\end{figure}
+}
+
+\subsection{DominoEX}
+\frame{
+\frametitle{DominoEX (MFSK)}
+\begin{itemize}
+\item The first MFSK-based mode implemented - utilises Incremental Frequency Shift Keying.
+\item Resistant to multi-path and doppler effects.
+\item 6 variations available, each with different symbol rates (3.9 to 29.5Hz) and bandwidths (173 to 524Hz).
+\item Data rates varying from 2 to 14 \emph{characters} per second.
+\end{itemize}
+
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=0.8\textwidth]{images/dominoex.png}
+  \end{center}
+  \caption{DominoEX8 - 7.8125 baud, 346Hz Bandwidth }
+  \label{domino}
+\end{figure}
 }
 
 \end{document}
