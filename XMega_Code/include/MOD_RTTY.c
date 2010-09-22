@@ -66,7 +66,9 @@ void RTTY_TXByte(uint8_t data){
 
 void RTTY_TXString(char *string) {
     
+    AD9835_Awake();
     RTTY_Delay();
+    _delay_ms(500);
 
 	for (int i = 0; i < strlen(string); i++) {
 		RTTY_TXByte(string[i]);

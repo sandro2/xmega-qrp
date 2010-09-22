@@ -11,6 +11,7 @@
 #include "include/clksys_driver.h"
 #include "include/AD9835_Xmega.h"
 #include "include/MOD_RTTY.h"
+#include "include/MOD_DOMINO.h"
 
 #define CARRIER_FREQ    1000
 
@@ -72,6 +73,8 @@ void Set_Mode(){
             break;
         case DOMINO_MASK:
             AD9835_Sleep();
+            Domino_Setup(CARRIER_FREQ,8);
+            AD9835_Awake();
             break;
         case MANUAL_MASK:
             AD9835_Sleep();
@@ -95,6 +98,8 @@ void TXString(char *string){
             RTTY_TXString(string);
             break;
         case DOMINO_MASK:
+            //Domino_TXString("$$$$$$$$");
+            Domino_TXString(string);
             break;
         case MANUAL_MASK:
             break;
@@ -130,7 +135,7 @@ int main(void)
 	sei();
 
 	while(1) {
-	    TXString("AD9835 TX Test\n");
+	    TXString("$$$$$$$$ AD9835 TX Test $$$$$$$$\n");
 	    _delay_ms(1000);
 	    LEDPORT.OUTTGL = 0x80;
 	}
