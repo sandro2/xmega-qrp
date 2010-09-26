@@ -7,6 +7,7 @@
 */
 
 #include "avr_compiler.h"
+#include <string.h>
 #include "AD9835_Xmega.h"
 #include "MOD_Morse.h"
 
