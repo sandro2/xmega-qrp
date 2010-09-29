@@ -86,6 +86,8 @@ void AD9835_SendWord(uint16_t data){
   	  	//digitalWrite(SCLK_PIN,LOW);
   	  	PORTD.OUTSET = SCLK;
   	  	PORTD.OUTCLR = SCLK;
+  	  	//_delay_ms(0.001);
+  	  	nop();
   	  	nop();
   	  	nop();
   	  	nop();
