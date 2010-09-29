@@ -15,16 +15,22 @@ void init_gps(){
     GPSUART.BAUDCTRLA = 207; // 9600 Baud when using a 32MHz Clock.
     
     GPSUART.CTRLB = USART_TXEN_bm;
-    sendNMEA("$PUBX,40,RMC,0,1,1,0");
-    sendNMEA("$PUBX,40,VTG,0,1,1,0");
-    sendNMEA("$PUBX,40,GGA,0,1,1,0");
-    sendNMEA("$PUBX,40,GSA,0,1,1,0");
-    sendNMEA("$PUBX,40,GSV,0,1,1,0");
-    sendNMEA("$PUBX,40,ZDA,0,1,1,0");
-    sendNMEA("$PUBX,40,GLL,0,1,1,0");
+    
+    // Set the UBlox5 Chip into flight mode.
+    uint8_t setNav[] = {0xB5, 0x62, 0x06, 0x24, 0x24, 0x00, 0xFF, 0xFF, 0x06, 0x03, 0x00, 0x00, 0x00, 0x00, 0x10, 0x27, 0x00, 0x00, 0x05, 0x00, 0xFA, 0x00, 0xFA, 0x00, 0x64, 0x00, 0x2C, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x16, 0xDC};
+	sendUBX(setNav, sizeof(setNav)/sizeof(uint8_t));
+    
+    // Disable un-neccesary NMEA sentences (all of them!)
+    sendNMEA("$PUBX,40,RMC,0,0,0,0");
+    sendNMEA("$PUBX,40,VTG,0,0,0,0");
+    sendNMEA("$PUBX,40,GGA,0,0,0,0");
+    sendNMEA("$PUBX,40,GSA,0,0,0,0");
+    sendNMEA("$PUBX,40,GSV,0,0,0,0");
+    sendNMEA("$PUBX,40,ZDA,0,0,0,0");
+    sendNMEA("$PUBX,40,GLL,0,0,0,0");
     
     
-    
+    // Enable UART RX
     GPSUART.CTRLB = USART_RXEN_bm|USART_TXEN_bm;
 }
 
@@ -60,6 +66,12 @@ GPSWriteString(output);
 //RTTY_TXString(output);
 
 
+}
+
+void sendUBX(uint8_t *MSG, uint8_t len) {
+	for(int i=0; i<len; i++) {
+		GPSWriteChar(MSG[i]);
+	}
 }
 /*
 ISR(USARTD1_RXC_vect)				//UART interrupt on mega xx8 series

@@ -37,8 +37,10 @@ uint32_t CARRIER_FREQ = 7000000;
 // Data Mode
 #define RTTY_300    0
 #define DOMINOEX8   1
-
+#define RELIABLE_MODE    1 // DominoEX8 is our 'reliable' mode. Better than RTTY300 at least.
 int data_mode = 0;
+
+#define BATT_THRESHOLD  9.0
 
 
 char tx_buffer[256];
@@ -74,6 +76,7 @@ void TXString(char *string){
             RTTY_TXString(string);
             break;
         case 1:
+            Domino_TXString("$$$"); // Try and help sync the receiver.
             Domino_TXString(string);
             break;
         default:
@@ -212,24 +215,26 @@ int main(void) {
     // Broadcast a bit of carrier.
     _delay_ms(1000);
     
-    TXString("Starting up...\n"); // Kind of like debug lines.
+    TXString("Booting up...\n"); // Kind of like debug lines.
     
     // Start up the GPS RX UART.
     init_gps();
-    
-    TXString("GPS Active\n");
     
     // Turn Interrupts on.
     PMIC.CTRL = PMIC_HILVLEN_bm | PMIC_LOLVLEN_bm;
     sei();
     
-    TXString("Interrupts On.\n");
+    sendNMEA("$PUBX,00"); // Poll the UBlox5 Chip for data.
+    
+    TXString("GPS Active, Interrupts On.\n");
     
     unsigned int counter = 0; // Init out TX counter.
+    
+    int new_mode = -1;
  
     while(1){
         // Identify every few minutes
-        if (counter%200 == 0) TXString("DE VK5VZI Project Horus Launch projecthorus.org \n");
+        //if (counter%200 == 0) TXString("DE VK5VZI Project Horus Launch projecthorus.org \n");
     
     
         // Collect GPS data
@@ -263,10 +268,25 @@ int main(void) {
         // Transmit!
         TXString(tx_buffer);
         
+        sendNMEA("$PUBX,00"); // Poll the UBlox5 Chip for data again.
+        
+        // Check the battery voltage. If low, switch to a more reliable mode.
+        if((bat_voltage < BATT_THRESHOLD) && (data_mode != RELIABLE_MODE)){
+            new_mode = RELIABLE_MODE;
+        }
+        
+        // Perform a mode switch, if required. 
+        // Done here to allow for mode changes to occur elsewhere.
+        if(new_mode != -1){
+            data_mode = new_mode;
+            TX_Setup();
+            new_mode = -1;
+        }
+        
         // And wait a little while before sending the next string.
         _delay_ms(1000);
         
-        sendNMEA("$PUBX,00"); // Poll the UBlox5 Chip for data.
+        
     }
 
     

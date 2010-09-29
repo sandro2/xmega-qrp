@@ -40,5 +40,6 @@ void GPSWriteLine(char *string);
 void GPSWriteString(char *string);
 void GPSWriteChar(unsigned char data);
 void sendNMEA(char *string);
+void sendUBX(uint8_t *MSG, uint8_t len);
 
 #endif
