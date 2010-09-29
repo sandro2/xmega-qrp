@@ -16,6 +16,7 @@
 #include "include/xmega_lib.h"
 //#include "include/clksys_driver.h"
 #include "include/AD9835_Xmega.h"
+#include "include/MOD_Morse.h"
 #include "include/MOD_RTTY.h"
 #include "include/MOD_DOMINO.h"
 #include "include/TIMER.h"
@@ -37,10 +38,13 @@ uint32_t CARRIER_FREQ = 7000000;
 // Data Mode
 #define RTTY_300    0
 #define DOMINOEX8   1
+#define QRSS        2 
 #define RELIABLE_MODE    1 // DominoEX8 is our 'reliable' mode. Better than RTTY300 at least.
+#define FALLBACK    2   // Our QRSS mode, in case the battery really goes to hell.
 int data_mode = 0;
 
 #define BATT_THRESHOLD  9.0
+#define BATT_THRESHOLD_2  7.0
 
 
 char tx_buffer[256];
@@ -65,6 +69,9 @@ void TX_Setup(){
         case 1:
             Domino_Setup(CARRIER_FREQ,8);
             break;
+        case 2:
+            Morse_Setup(5,CARRIER_FREQ); // Sloooooooooq QRSS fallback mode.
+            break;
         default:
             break;
     }
@@ -78,6 +85,10 @@ void TXString(char *string){
         case 1:
             Domino_TXString("$$$"); // Try and help sync the receiver.
             Domino_TXString(string);
+            break;
+        case 2:
+            // Probably shouldn't try and TX long strings in this mode...
+            Morse_TXString(string);
             break;
         default:
             break;
@@ -233,11 +244,16 @@ int main(void) {
     int new_mode = -1;
  
     while(1){
-        // Identify every few minutes
-        //if (counter%200 == 0) TXString("DE VK5VZI Project Horus Launch projecthorus.org \n");
+	    // Read ADC PortA pin 0, using differential, signed input mode. Negative input comes from pin 1, which is tied to ground. Use VCC/1.6 as ref.
+	    uint16_t temp = readADC(); 
+	    float bat_voltage = (float)temp * 0.001007572056668* 8.5;
+        floatToString(bat_voltage,1,voltString);
+   
     
     
         // Collect GPS data
+        
+        // NOTE - NEED TO ADD IN SPEED.
         gps.f_get_position(&lat, &lon);
 	    sats = gps.sats();
 	    altitude = (long)gps.f_altitude();
@@ -246,21 +262,23 @@ int main(void) {
 	    floatToString(lat, 5, latString);
 	    floatToString(lon, 5, longString);
 	    
+	    if(data_mode != FALLBACK){
 	    
-	    // Read ADC PortA pin 0, using differential, signed input mode. Negative input comes from pin 1, which is tied to ground. Use VCC/1.6 as ref.
-	    uint16_t temp = readADC(); 
-	    float bat_voltage = (float)temp * 0.001007572056668* 8.5;
-        floatToString(bat_voltage,1,voltString);
-        
-        // Construct our Data String
-        sprintf(tx_buffer,"$$DARKSIDE,%u,%02d:%02d:%02d,%s,%s,%ld,%d,%s",counter++,time[0], time[1], time[2],latString,longString,altitude,sats,voltString);
-        
-        // Calculate the CRC-16 Checksum
-        char checksum[10];
-        snprintf(checksum, sizeof(checksum), "*%04X\n", gps_CRC16_checksum(tx_buffer));
-     
-        // And copy the checksum onto the end of the string.
-        memcpy(tx_buffer + strlen(tx_buffer), checksum, strlen(checksum) + 1);
+            // Construct our Data String
+            sprintf(tx_buffer,"$$DARKSIDE,%u,%02d:%02d:%02d,%s,%s,%ld,%d,%s",counter++,time[0], time[1], time[2],latString,longString,altitude,sats,voltString);
+            
+            
+            // Calculate the CRC-16 Checksum
+            char checksum[10];
+            snprintf(checksum, sizeof(checksum), "*%04X\n", gps_CRC16_checksum(tx_buffer));
+         
+            // And copy the checksum onto the end of the string.
+            memcpy(tx_buffer + strlen(tx_buffer), checksum, strlen(checksum) + 1);
+        }else{
+            // If our battery is really low, we don't want to transmit much data, so limit what we TX to just an identifier, battery voltage, and our position.
+            
+            sprintf(tx_buffer, "HORUS8 %s %s %s %ld", bat_voltage, latString, longString,altitude);
+        }
         
         // Blinky blinky...
         LEDPORT.OUTTGL = 0x01;
@@ -268,11 +286,16 @@ int main(void) {
         // Transmit!
         TXString(tx_buffer);
         
+        // Identify every few minutes
+        //if (counter%200 == 0) TXString("DE VK5VZI Project Horus Launch projecthorus.org \n");
+        
         sendNMEA("$PUBX,00"); // Poll the UBlox5 Chip for data again.
         
         // Check the battery voltage. If low, switch to a more reliable mode.
         if((bat_voltage < BATT_THRESHOLD) && (data_mode != RELIABLE_MODE)){
             new_mode = RELIABLE_MODE;
+            // This string should be changed if the 'reliable' mode is changed.
+            TX_String("Battery Voltage Below 9V. Switching to DominoEX8.\n");
         }
         
         // Perform a mode switch, if required. 

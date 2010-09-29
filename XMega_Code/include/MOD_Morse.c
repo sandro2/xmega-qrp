@@ -76,8 +76,11 @@ void Morse_Setup(uint16_t WPM, uint32_t carrier_freq){
 
    AD9835_Setup();
    AD9835_UseFSEL(0);
+   AD9835_SelectFREG(1);
+   AD9835_SetFreq(carrier_freq);
    AD9835_SelectFREG(0);
-   AD9835_SetFreq(carrier_freq);   
+   AD9835_SetFreq(0); // Using '0'Hz makes the AD9835's output voltage sit around 1.5V, instead of 0V.
+   AD9835_UseFSEL(1);
      
 }
 
@@ -86,17 +89,17 @@ void Morse_DelayUnit(int number){
 }
 
 void Morse_SendDit(){
-  AD9835_Sleep();
-  AD9835_Awake();
+  AD9835_SelectFREG(0);
+  AD9835_SelectFREG(1);
   Morse_DelayUnit(1);
-  AD9835_Sleep();
+  AD9835_SelectFREG(0);
 }
 
 void Morse_SendDash(){
-  AD9835_Sleep();
-  AD9835_Awake();
+  AD9835_SelectFREG(0);
+  AD9835_SelectFREG(1);
   Morse_DelayUnit(3);
-  AD9835_Sleep();
+  AD9835_SelectFREG(0);
 }
 
 void Morse_SendLetter(char letter){
