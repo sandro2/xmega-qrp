@@ -8,6 +8,7 @@
 \usepackage{xypic}
 \usepackage{hyperref}
 \usepackage{wrapfig}
+\usepackage{color}
 
 \title{A Radio Relay System for Remote Sensors in the Antarctic}
 \subtitle{Final Seminar}
@@ -24,6 +25,9 @@
   \pgfuseimage{logo} 
 \end{textblock} 
 } 
+
+\definecolor{uofa}{cmyk}{1,0.56,0,0.18}
+\usecolortheme[named=uofa]{structure}
 
 \begin{document}
 
@@ -43,9 +47,16 @@
 \subsection{Motivation}
 \frame{\MyLogo
 \frametitle{Motivation}
+\textbf{Aim} - Design and build a low power HF data transmitter for use in an antarctic remote sensor application.\\
 \begin{itemize}
-\item \textbf{Aim} - Design and build a low power HF data transmitter for use in remote sensor systems.
-\item Originally intended for use in the Antarctic.
+\item Project scope expanded mid-year to include other applications.
+\item{Initial Constraints still used.\\ 
+\begin{itemize}
+\item Low Temperature Operation
+\item Low Power Consumption
+\end{itemize}
+}
+
 \item Can be used in a huge amount of applications!
 \end{itemize}
 }
@@ -59,11 +70,13 @@
 }
 \frame{\MyLogo
 \frametitle{Hardware \& Software Overview}
-\begin{itemize}
-\item Atmel XMega Micro-controller
-\item Analog Devices AD9835 Signal Generator IC
-\item Multiple power amplifier options
-\end{itemize}
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=1\textwidth]{diagrams/Antarctic_Radio_Overview.pdf}
+  \end{center}
+
+\end{figure}
+
 }
 
 \section{Hardware}
@@ -135,6 +148,36 @@
 \item Powered from a 12V SLA for testing.
 \item For sub-zero use, Lithium-iron primary cells can be used.
 \item Lithium-thionyl chloride secondary cells can operate down to $-60^\circ$C.
+\end{itemize}
+}
+
+\subsection{Hardware Testing}
+
+\frame{\MyLogo
+\frametitle{Low Temperature Testing}
+\begin{itemize}
+\item All major components rated to either $-40^\circ$C or $-55^\circ$C.
+\item Doesn't hurt to check!
+\item Dry Ice used to cool components below rated limits.
+\end{itemize}
+
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=0.6\textwidth]{images/cold_xmega.jpg}
+  \end{center}
+\end{figure}
+}
+
+\frame{\MyLogo
+\frametitle{Low Temperature Testing}
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=0.6\textwidth]{images/cold_xmega2.jpg}
+  \end{center}
+\end{figure}
+\begin{itemize}
+\item AT-XMega's internal RC 32MHz oscillator drifts up to 33MHz at $-55^\circ$C.
+\item AD9835's output only drifts up by $\sim$300Hz at $-40^\circ$C!
 \end{itemize}
 }
 
@@ -221,7 +264,7 @@
 
 
 \section{Example Application \& Prototype}
-\frame{
+\frame{\MyLogo
 \frametitle{Example Application - HAB Telemetry Transmitter}
 
 \begin{columns}[c]
@@ -236,11 +279,44 @@
 \column{3cm}
 \begin{figure}
   \begin{center}
-    \includegraphics[width=3.0cm]{images/horus_launch.jpg}
+    \includegraphics[width=3cm]{images/horus_launch.jpg}
   \end{center}
 \end{figure}
 
 \end{columns}
+}
+
+\frame{\MyLogo
+\frametitle{Example Application - HAB Telemetry Transmitter}
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=10cm]{images/horus_33km.jpg}
+  \end{center}
+\end{figure}
+\begin{itemize}
+\item Local Amateur HAB group - \textbf{Project Horus}
+\item{Have offered to fly a prototype transmitter, with modifications.\\
+\begin{itemize}
+\item GPS Receiever, for positioning information
+\item Temperature Sensors
+\end{itemize}
+}
+\end{itemize}
+}
+
+\frame{\MyLogo
+\frametitle{Prototype}
+\begin{itemize}
+\item{ System `Motherboard'\\
+\begin{itemize}
+\item XMega
+\item AD9835 DDS VFO
+\item UBlox5 GPS Module
+\item I$^2$C Temperature Sensors
+\end{itemize}}
+
+\item Amplifier Module
+\end{itemize}
 
 }
 
