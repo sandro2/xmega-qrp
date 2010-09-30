@@ -6,21 +6,32 @@
 \usepackage{beamerthemesplit}
 \usepackage{graphicx}
 \usepackage{xypic}
+\usepackage{hyperref}
 \usepackage{wrapfig}
 
-\title{A Radio Relay System for Remote Sensors in the Antarctic (or anywhere!)}
+\title{A Radio Relay System for Remote Sensors in the Antarctic}
 \subtitle{Final Seminar}
 \author{Mark Jessop}
-\date{September 27, 2010}
+\date{October 8, 2010}
 
+\pgfdeclareimage[height=1.3cm]{logo}{images/ualogo_spot.pdf} 
 
+\usepackage[absolute,overlay]{textpos} 
+\setlength{\TPHorizModule}{1mm} 
+\setlength{\TPVertModule}{1mm} 
+\newcommand{\MyLogo}{% 
+\begin{textblock}{14}(104.0,0.3) 
+  \pgfuseimage{logo} 
+\end{textblock} 
+} 
 
 \begin{document}
 
 \frame{
+\MyLogo
 \titlepage
 \begin{center}
-\small{Supervisor: Dr Chris Coleman}% \hspace{20pt} Co-Supervisor: Dr  Said Al-Sarawi}
+%\small{Supervisor: Dr Chris Coleman}% \hspace{20pt} Co-Supervisor: Dr  Said Al-Sarawi}
 \end{center}
 }
 
@@ -29,34 +40,40 @@
 
 \section{Introduction}
 
-\subsection{Project Aim}
-\frame{
-\frametitle{Project Aim}
+\subsection{Motivation}
+\frame{\MyLogo
+\frametitle{Motivation}
 \begin{itemize}
-\item Design and build a low power HF data transmitter for use in remote sensor systems.
+\item \textbf{Aim} - Design and build a low power HF data transmitter for use in remote sensor systems.
 \item Originally intended for use in the Antarctic.
-\item Can be used anywhere!
+\item Can be used in a huge amount of applications!
 \end{itemize}
 }
 
 \subsection{Hardware \& Software Overview}
-\frame{
+\frame{\MyLogo
+\frametitle{Hardware \& Software Overview}
+\begin{itemize}
+\item Modular Design \& Construction
+\end{itemize}
+}
+\frame{\MyLogo
 \frametitle{Hardware \& Software Overview}
 \begin{itemize}
 \item Atmel XMega Micro-controller
 \item Analog Devices AD9835 Signal Generator IC
-\item Class E Power Amplifier
+\item Multiple power amplifier options
 \end{itemize}
 }
 
 \section{Hardware}
 
 \subsection{CPU}
-\frame{
+\frame{\MyLogo
 \frametitle{CPU - Atmel ATXmega128A1}
 \begin{figure}
   \begin{center}
-    \includegraphics[width=0.5\textwidth]{images/xplain.jpg}
+    \includegraphics[width=0.4\textwidth]{images/xplain.jpg}
   \end{center}
   %\caption{Atmel XPlain Development Board}
   \label{xplain}
@@ -71,7 +88,7 @@
 }
 
 \subsection{Signal Generator}
-\frame{
+\frame{\MyLogo
 \frametitle{Signal Generator - Analog Devices AD9835}
 \begin{itemize}
 \item Original intention was to use an AD9834
@@ -95,36 +112,54 @@
 }
 
 \subsection{Power Amplifier}
-\frame{
+\frame{\MyLogo
 \frametitle{Power Amplifier}
 \begin{itemize}
-\item Op-Amp based pre-amplifier
-\item Class E MOSFET Power Amplifier
+\item Op-Amp based pre-amplifier - 40mW output.
+\item Class C NPN Transistor Amplifier - 1W output.
+\item Class E MOSFET Power Amplifier - 5W output.
+\end{itemize}
+}
+
+\subsection{Power Supply}
+\frame{\MyLogo
+\frametitle{Power Supply}
+\textbf{Supply Requirements}
+\begin{itemize}
+\item 12v, 5v and 3.3v rails are required.
+\item Linear Regulators are very in-efficient.
+\item Switch-mode Regulators used instead.
+\end{itemize}
+\textbf{Battery Power}
+\begin{itemize}
+\item Powered from a 12V SLA for testing.
+\item For sub-zero use, Lithium-iron primary cells can be used.
+\item Lithium-thionyl chloride secondary cells can operate down to $-60^\circ$C.
 \end{itemize}
 }
 
 \section{Software}
 \subsection{Overview}
-\frame{
+\frame{\MyLogo
 \frametitle{Software Overview}
 \begin{itemize}
-\item Coded entirely in C.
+\item Coded in C and C++.
+\item Libraries built first, more complex applications later.
 \item Morse, RTTY (FSK) and DominoEX modulation implemented.
 \item Data acquisition from onboard ADCs, UARTs, or I$^2$C Devices.
 \end{itemize}
 }
 
 \subsection{Morse}
-\frame{
+\frame{\MyLogo
 \frametitle{Morse Code \& QRSS}
-
 
 \begin{itemize}
 \item Morse Code at very slow speeds can be received over very long distances.
 \item Signals are pulled out of the noise floor with DSP techniques.
 \item Very low signal bandwidth.
 \item Not very useful for transmitting lots of data.
-\item Great for a beacon!
+\item Good for beaconing.
 \end{itemize}
 
 \begin{figure}
@@ -137,7 +172,7 @@
 }
 
 \subsection{RTTY}
-\frame{
+\frame{\MyLogo
 \frametitle{RTTY (FSK)}
 \begin{itemize}
 \item FSK Modulation, with start and stop bits.
@@ -156,7 +191,7 @@
 }
 
 \subsection{DominoEX}
-\frame{
+\frame{\MyLogo
 \frametitle{DominoEX (MFSK)}
 \begin{itemize}
 \item The first MFSK-based mode implemented - utilises Incremental Frequency Shift Keying.
@@ -172,6 +207,51 @@
   \caption{DominoEX8 - 7.8125 baud, 346Hz Bandwidth }
   \label{domino}
 \end{figure}
+}
+
+\subsection{Testing Procedures}
+\frame{\MyLogo
+\frametitle{Testing Procedures}
+
+\begin{itemize}
+\item Checking of library operation once coded.
+\end{itemize}
+
+}
+
+
+\section{Example Application \& Prototype}
+\frame{
+\frametitle{Example Application - HAB Telemetry Transmitter}
+
+\begin{columns}[c]
+\column{7cm}
+\textbf{Amateur High Altitude Ballooning (HAB)}
+\begin{itemize}
+\item Aims to set height / distance records for balloon flights.
+\item Some form of telemetry system used to track balloon in flight.
+\item 433MHz Single-Sideband Transmissions commonly used.
+\end{itemize}
+
+\column{3cm}
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=3.0cm]{images/horus_launch.jpg}
+  \end{center}
+\end{figure}
+
+\end{columns}
+
+}
+
+
+\frame{\MyLogo
+\frametitle{References}
+\tiny{
+Saft \textit{Lithium-thionyl chloride (Li-SOCl2) Cell Range}\\
+\url{http://www.saftbatteries.com/Produit\_LSH\_cell\_range\_303\_8/Default.aspx}
+
+}
 }
 
 \end{document}
