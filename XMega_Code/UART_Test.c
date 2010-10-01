@@ -33,7 +33,7 @@
 #define AD9835_PORT PORTD
 
 // Carrier Frequency Setting
-uint32_t CARRIER_FREQ = 7000000;
+uint32_t CARRIER_FREQ = 1000;
 
 // Data Mode
 #define RTTY_300    0
@@ -239,6 +239,7 @@ int main(void) {
     
     TXString("GPS Active, Interrupts On.\n");
     
+    
     unsigned int counter = 0; // Init out TX counter.
     
     int new_mode = -1;
@@ -261,6 +262,7 @@ int main(void) {
 	    
 	    floatToString(lat, 5, latString);
 	    floatToString(lon, 5, longString);
+	    
 	    
 	    if(data_mode != FALLBACK){
 	    
@@ -295,7 +297,7 @@ int main(void) {
         if((bat_voltage < BATT_THRESHOLD) && (data_mode != RELIABLE_MODE)){
             new_mode = RELIABLE_MODE;
             // This string should be changed if the 'reliable' mode is changed.
-            TX_String("Battery Voltage Below 9V. Switching to DominoEX8.\n");
+            TXString("Battery Voltage Below 9V. Switching to DominoEX8.\n");
         }
         
         // Perform a mode switch, if required. 

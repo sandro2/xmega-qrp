@@ -25,5 +25,6 @@ unsigned char UsartCReadChar(void);
 void UsartCWriteString(char *string);
 void UsartCWriteLine(char *string);
 void Setup32KHzRTC(int DELAY);
+uint8_t ReadCalibrationByte( uint8_t index );
 
 #endif
