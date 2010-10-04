@@ -8,6 +8,10 @@
 			Method to retrieve number of sats tracked
 			Adjusted invalid lock defaults
 
+  27/10/2010 Ported to the XMega by Mark Jessop 
+  (mark.jessop@student.adelaide.edu.au)
+  
+
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
   License as published by the Free Software Foundation; either
