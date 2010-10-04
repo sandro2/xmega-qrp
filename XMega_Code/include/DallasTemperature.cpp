@@ -4,10 +4,14 @@
 // version 2.1 of the License, or (at your option) any later version.
 
 #include "DallasTemperature.h"
+#define F_CPU 32000000UL
+#include <util/delay.h>
 
 extern "C" {
   //#include "WConstants.h"
 }
+
+#define delay(time) _delay_ms(time)
 
 DallasTemperature::DallasTemperature(OneWire* _oneWire) 
   #if REQUIRESALARMS

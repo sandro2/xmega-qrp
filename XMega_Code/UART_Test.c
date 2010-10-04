@@ -61,7 +61,7 @@ int time[3];
 TinyGPS gps;
 
 // Temperature Sensor Stuff
-OneWire oneWire();
+OneWire oneWire;
 DallasTemperature sensors(&oneWire);
 
 uint8_t internal[] = {0x28, 0x43, 0xE6, 0x5E, 0x02, 0x00, 0x00, 0xF6};

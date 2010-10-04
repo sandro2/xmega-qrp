@@ -86,6 +86,8 @@ extern "C" {
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
+#define F_CPU 32000000UL
+#include <util/delay.h>
 }
 
 #define ONEWIREPORT PORTA
@@ -108,7 +110,7 @@ OneWire::OneWire()//uint8_t pin)
 #define DIRECT_WRITE_HIGH(base, mask)	((*(base+2)) |= (mask))
 */
 
-#define DIRECT_READ(mask)		(ONEWIREPORT.IN & (mask)) ? 1 : 0)
+#define DIRECT_READ(mask)		((ONEWIREPORT.IN & (mask)) ? 1 : 0)
 #define DIRECT_MODE_INPUT(mask)	(ONEWIREPORT.DIRCLR = mask)
 #define DIRECT_MODE_OUTPUT(mask)	(ONEWIREPORT.DIRSET = mask)
 #define DIRECT_WRITE_LOW(mask)	(ONEWIREPORT.OUTSET = mask)
@@ -136,7 +138,7 @@ uint8_t OneWire::reset(void)
 	do {
 		if (--retries == 0) return 0;
 		delayMicroseconds(2);
-	} while ( !DIRECT_READ(mask));
+	} while ( !DIRECT_READ(mask) );
 
 	cli();
 	DIRECT_WRITE_LOW(mask);
