@@ -3,6 +3,9 @@
 // License as published by the Free Software Foundation; either
 // version 2.1 of the License, or (at your option) any later version.
 
+// 'Ported' to the XMega.
+// -- Mark Jessop, October 4, 2010
+
 #include "DallasTemperature.h"
 #define F_CPU 32000000UL
 #include <util/delay.h>

@@ -26,6 +26,9 @@ Modified to calculate the 8-bit CRC directly, avoiding the need for
 the 256-byte lookup table to be loaded in RAM.  Tested in arduino-0010
 -- Tom Pollard, Jan 23, 2008
 
+'Ported' to the XMega. Currently locked to PORTA.
+-- Mark Jessop, October 4, 2010
+
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
 "Software"), to deal in the Software without restriction, including
