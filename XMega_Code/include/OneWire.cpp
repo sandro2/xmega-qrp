@@ -113,8 +113,8 @@ OneWire::OneWire()//uint8_t pin)
 #define DIRECT_READ(mask)		((ONEWIREPORT.IN & (mask)) ? 1 : 0)
 #define DIRECT_MODE_INPUT(mask)	(ONEWIREPORT.DIRCLR = mask)
 #define DIRECT_MODE_OUTPUT(mask)	(ONEWIREPORT.DIRSET = mask)
-#define DIRECT_WRITE_LOW(mask)	(ONEWIREPORT.OUTSET = mask)
-#define DIRECT_WRITE_HIGH(mask)	(ONEWIREPORT.OUTCLR = mask)
+#define DIRECT_WRITE_LOW(mask)	(ONEWIREPORT.OUTCLR = mask)
+#define DIRECT_WRITE_HIGH(mask)	(ONEWIREPORT.OUTSET = mask)
 
 #define delayMicroseconds(time) _delay_us(time)
 
