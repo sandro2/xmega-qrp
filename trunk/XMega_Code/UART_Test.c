@@ -20,11 +20,10 @@
 #include "include/MOD_RTTY.h"
 #include "include/MOD_DOMINO.h"
 #include "include/TIMER.h"
-
 #include "include/TinyGPS.h"
-
-
 #include "include/GPS2.h"
+#include "include/OneWire.h"
+#include "include/DallasTemperature.h"
 
 
 
@@ -60,6 +59,12 @@ int time[3];
 
 // tinyGPS object
 TinyGPS gps;
+
+// Temperature Sensor Stuff
+OneWire oneWire();
+DallasTemperature sensors(&oneWire);
+
+uint8_t internal[] = {0x28, 0x43, 0xE6, 0x5E, 0x02, 0x00, 0x00, 0xF6};
 
 void TX_Setup(){
     switch(data_mode){
@@ -210,6 +215,8 @@ int main(void) {
 
     // Start up the timer.
     init_timer();
+    
+    sensors.begin();
     
     // Wait a bit before starting the AD9835.
     // It seems to take a few hundred ms to 'boot up' once power is applied.
