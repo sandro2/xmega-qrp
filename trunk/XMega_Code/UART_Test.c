@@ -32,7 +32,7 @@
 #define AD9835_PORT PORTD
 
 // Carrier Frequency Setting
-uint32_t CARRIER_FREQ = 7025000;
+uint32_t CARRIER_FREQ = 1000;//7025000;
 
 // Data Mode
 #define RTTY_300    0
@@ -64,7 +64,10 @@ TinyGPS gps;
 OneWire oneWire;
 DallasTemperature sensors(&oneWire);
 
-uint8_t internal[] = {0x28, 0x43, 0xE6, 0x5E, 0x02, 0x00, 0x00, 0xF6};
+// Internal sensor on prototype board
+uint8_t internal[] = {0x28, 0xE4, 0xEF, 0x54, 0x02, 0x00, 0x00, 0xC7};
+
+
 
 void TX_Setup(){
     switch(data_mode){
@@ -217,6 +220,7 @@ int main(void) {
     init_timer();
     
     sensors.begin();
+    sensors.requestTemperatures();
     
     // Wait a bit before starting the AD9835.
     // It seems to take a few hundred ms to 'boot up' once power is applied.
@@ -246,12 +250,18 @@ int main(void) {
     
     TXString("GPS Active, Interrupts On.\n");
     
+    int found_sensors = sensors.getDeviceCount();
     
+    sprintf(tx_buffer,"Found %u sensors.\n",found_sensors);
+    TXString(tx_buffer);
     unsigned int counter = 0; // Init out TX counter.
     
     int new_mode = -1;
  
     while(1){
+        // Identify every few minutes
+        if (counter%10 == 0) TXString("DE VK5VZI Project Horus Telemetry Test \n");
+    
 	    // Read ADC PortA pin 0, using differential, signed input mode. Negative input comes from pin 1, which is tied to ground. Use VCC/1.6 as ref.
 	    uint16_t temp = readADC(); 
 	    float bat_voltage = (float)temp * 0.001007572056668* 8.5;
@@ -270,11 +280,16 @@ int main(void) {
 	    floatToString(lat, 5, latString);
 	    floatToString(lon, 5, longString);
 	    
+        sensors.requestTemperatures();
+        _intTemp = sensors.getTempC(internal);
+        //_extTemp = sensors.getTempC(external);
+        if (_intTemp!=85 && _intTemp!=127 && _intTemp!=-127 && _intTemp!=999) intTemp = _intTemp;
+        //if (_extTemp!=85 && _extTemp!=127 && _extTemp!=-127 && _extTemp!=999) extTemp = _extTemp;
 	    
 	    if(data_mode != FALLBACK){
 	    
             // Construct our Data String
-            sprintf(tx_buffer,"$$DARKSIDE,%u,%02d:%02d:%02d,%s,%s,%ld,%d,%s",counter++,time[0], time[1], time[2],latString,longString,altitude,sats,voltString);
+            sprintf(tx_buffer,"$$DARKSIDE,%u,%02d:%02d:%02d,%s,%s,%ld,%d,%d,%s",counter++,time[0], time[1], time[2],latString,longString,altitude,sats,intTemp,voltString);
             
             
             // Calculate the CRC-16 Checksum
@@ -294,9 +309,7 @@ int main(void) {
         
         // Transmit!
         TXString(tx_buffer);
-        
-        // Identify every few minutes
-        if (counter%10 == 0) TXString("DE VK5VZI Project Horus Telemetry Test \n");
+       
         
         sendNMEA("$PUBX,00"); // Poll the UBlox5 Chip for data again.
         
