@@ -1,0 +1,91 @@
+\documentclass[a4paper,12pt]{article}
+\linespread{1.3}
+\usepackage[left=2cm,top=2cm,right=2cm,bottom=2cm]{geometry}
+
+%\usepackage{palatino}
+
+\usepackage{xypic}
+\usepackage{natbib}
+\bibliographystyle{plainnat}
+\bibpunct{[}{]}{;}{s}{,}{,}
+
+\usepackage[header,page,titletoc]{appendix}
+\renewcommand{\appendixname}{Appendix}
+%\renewcommand{\appendixtocname}{List of appendices}
+
+\usepackage[colorlinks=true,linkcolor=black,citecolor=black,filecolor=black,menucolor=black,urlcolor=black]{hyperref}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{pdfpages}
+\usepackage{fancyhdr}
+\usepackage{pict2e}
+\setlength{\headheight}{15.2pt}
+
+\pagestyle{fancy}
+\usepackage{cite}
+%
+% fix citations to be IEEE style
+\def\citepunct{], [}
+\def\citedash{]--[}
+
+\newcommand{\nonumsection}[1]{
+\section{#1}
+%\addcontentsline{toc}{section}{#1}
+}
+
+%Used to change "Abstract" to "Executive Summary"
+
+% Paragraph Settings
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+
+\begin{document}
+\thispagestyle{empty}
+\vspace*{\fill}
+\includegraphics[width=10cm]{./UofAlogo.pdf}\\
+\noindent
+\textsc{
+\textsc{School of Electrical \& Electronic Engineering}\\
+Adelaide, South Australia, 5005\\ \\
+}
+\noindent
+\Large{\textbf{
+ELEC ENG 4039A/B \\
+Honours Project\\
+	}}
+	\Large{
+		A Radio Relay System for Remote Sensors in the Antarctic \\
+	}
+	\small{\textbf{Supervisors: Dr. Chris Coleman, Dr Said Al-Sarawi}}
+	\ \\
+	\ \\
+	\Large{\textbf{
+		Final Report \\
+	}}
+	\ \\
+	\small{\textbf{
+		Written by: \\}
+		Mark Jessop \\
+		1163807
+	}
+	\ \\
+	\ \\
+	Date Submitted: October 22, 2010 \\
+	Signature of Supervisor: \\
+ %\end{center}
+ \vspace*{\fill}
+
+\newpage
+ \thispagestyle{empty}
+ \vspace*{\fill}
+\begin{abstract}
+\noindent
+A common problem with remote sensor systems is the retrieval of data. Satellite-based systems are expensive, as is travelling to the sensor. Thankfully, ionospheric propagation comes to the rescue! Radio signals below 30MHz can easily bounce off the ionosphere, travelling thousands of kilometres using only a few watts of transmit power.Based around an Atmel XMega Micro-Controller and using Direct Digital Synthesis techniques, this project aims to provide a reliable low power HF telemetry system, usable in a variety of remote telemetry applications. 
+By making use of the XMega's power-save modes and using high-efficiency RF amplifiers, power consumption is minimised, allowing months of operation from battery power.
+\end{abstract}
+\vspace*{\fill}
+\newpage
+\tableofcontents
+\newpage
+
+\end{document}
