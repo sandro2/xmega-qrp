@@ -33,7 +33,7 @@
 #define AD9835_PORT PORTD
 
 // Carrier Frequency Setting
-uint32_t CARRIER_FREQ = 1000;
+uint32_t CARRIER_FREQ = 7025000;
 
 // Data Mode
 #define RTTY_300    0
@@ -279,7 +279,7 @@ int main(void) {
         }else{
             // If our battery is really low, we don't want to transmit much data, so limit what we TX to just an identifier, battery voltage, and our position.
             
-            sprintf(tx_buffer, "HORUS8 %s %s %s %ld", bat_voltage, latString, longString,altitude);
+            sprintf(tx_buffer, "DARKSIDE %s %s %s %ld", bat_voltage, latString, longString,altitude);
         }
         
         // Blinky blinky...
@@ -289,17 +289,18 @@ int main(void) {
         TXString(tx_buffer);
         
         // Identify every few minutes
-        //if (counter%200 == 0) TXString("DE VK5VZI Project Horus Launch projecthorus.org \n");
+        if (counter%10 == 0) TXString("DE VK5VZI Project Horus Telemetry Test \n");
         
         sendNMEA("$PUBX,00"); // Poll the UBlox5 Chip for data again.
         
+        /*
         // Check the battery voltage. If low, switch to a more reliable mode.
         if((bat_voltage < BATT_THRESHOLD) && (data_mode != RELIABLE_MODE)){
             new_mode = RELIABLE_MODE;
             // This string should be changed if the 'reliable' mode is changed.
             TXString("Battery Voltage Below 9V. Switching to DominoEX8.\n");
         }
-        
+        */
         // Perform a mode switch, if required. 
         // Done here to allow for mode changes to occur elsewhere.
         if(new_mode != -1){

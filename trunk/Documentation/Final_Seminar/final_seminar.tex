@@ -94,8 +94,8 @@
 \textbf{Atmel XPlain Development Board}
 \begin{itemize}
 \item Atmel ATXmega128A1 Micro-Controller, clocked at 32MHz
-\item 8MB SDRAM
-\item 8MB NAND Flash Memory
+\item 3.3v Operation.
+\item 8MB SDRAM, 8MB NAND Flash Memory
 \item Low Power Consumption - 18mA @ 32MHz, 1.4mA @ 2MHz, $1.16\mu A$ Power-Save
 \end{itemize}
 }
@@ -104,8 +104,7 @@
 \frame{\MyLogo
 \frametitle{Signal Generator - Analog Devices AD9835}
 \begin{itemize}
-\item Original intention was to use an AD9834
-\item AD9835 Board ended up having the same power requirements!
+\item Original intention was to use an AD9834, AD9835 had almost identical power requirements.
 \end{itemize}
 
 \begin{figure}
@@ -121,14 +120,17 @@
 \item 2 programmable (via SPI) frequency registers.
 \item Dedicated pins for switching between registers.
 \item Using 16MHz SPI clock, can reprogram at 7500Hz.
+\item Draws approx 40mA @ 5V while running. 50MHz Oscillator accounts for most of this.
 \end{itemize}
 }
 
 \subsection{Power Amplifier}
 \frame{\MyLogo
 \frametitle{Power Amplifier}
+
 \begin{itemize}
-\item Op-Amp based pre-amplifier - 40mW output.
+\item All operate from 12V Supply.
+\item AD8008 Op-Amp based pre-amplifier - 40mW output, wide bandwidth.
 \item Class C NPN Transistor Amplifier - 1W output.
 \item Class E MOSFET Power Amplifier - 5W output.
 \end{itemize}
@@ -151,35 +153,6 @@
 \end{itemize}
 }
 
-\subsection{Hardware Testing}
-
-\frame{\MyLogo
-\frametitle{Low Temperature Testing}
-\begin{itemize}
-\item All major components rated to either $-40^\circ$C or $-55^\circ$C.
-\item Doesn't hurt to check!
-\item Dry Ice used to cool components below rated limits.
-\end{itemize}
-
-\begin{figure}
-  \begin{center}
-    \includegraphics[width=0.6\textwidth]{images/cold_xmega.jpg}
-  \end{center}
-\end{figure}
-}
-
-\frame{\MyLogo
-\frametitle{Low Temperature Testing}
-\begin{figure}
-  \begin{center}
-    \includegraphics[width=0.6\textwidth]{images/cold_xmega2.jpg}
-  \end{center}
-\end{figure}
-\begin{itemize}
-\item AT-XMega's internal RC 32MHz oscillator drifts up to 33MHz at $-55^\circ$C.
-\item AD9835's output only drifts up by $\sim$300Hz at $-40^\circ$C!
-\end{itemize}
-}
 
 \section{Software}
 \subsection{Overview}
@@ -252,14 +225,79 @@
 \end{figure}
 }
 
-\subsection{Testing Procedures}
+\section{Testing}
+\subsection{Software Testing}
 \frame{\MyLogo
-\frametitle{Testing Procedures}
-
+\frametitle{Software Testing}
 \begin{itemize}
-\item Checking of library operation once coded.
+\item AD9835 Libraries tested \& working long before the XMega was purchased.
+\item Modulation libraries tested individually.
+\item Use carrier of 1KHz, and test with computer sound card.
+\item Fl-Digi data modem software used to de-modulate received data.
+\end{itemize}
+}
+
+\subsection{Low Temperature Testing}
+
+\frame{\MyLogo
+\frametitle{Low Temperature Testing}
+\begin{itemize}
+\item All major components rated to either $-40^\circ$C (AD9835) or $-55^\circ$C (XMega).
+\item Doesn't hurt to check!
+\item Dry Ice used to cool components to rated limits or below.
 \end{itemize}
 
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=0.6\textwidth]{images/cold_xmega.jpg}
+  \end{center}
+\end{figure}
+}
+
+\frame{\MyLogo
+\frametitle{Low Temperature Testing}
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=0.6\textwidth]{images/cold_xmega2.jpg}
+  \end{center}
+\end{figure}
+\begin{itemize}
+\item AT-XMega's internal RC 32MHz oscillator drifts up to 33MHz at $-55^\circ$C.
+\item AD9835's output only drifts up by $\sim$300Hz at $-40^\circ$C!
+\end{itemize}
+}
+
+\subsection{Amplifier Testing}
+\frame{\MyLogo
+\frametitle{Amplifier Testing}
+\begin{itemize}
+\item Initially tested using $50\Omega$ dummy load.
+\item Yaesu FRG-8800 Shortwave receiver used to verify RF transmission.
+\item Balun and half-wave dipole for 40m (7MHz) operation constructed.
+\end{itemize}
+
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=0.8\textwidth]{images/testing_feedpoint2.jpg}
+  \end{center}
+\end{figure}
+}
+
+\frame{\MyLogo
+\frametitle{Amplifier Testing}
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=0.6\textwidth]{diagrams/antenna.pdf}
+  \end{center}
+\end{figure}
+\begin{itemize}
+\item Dipole arranged in horizontal 'V' configuration, approx. 2m above ground.
+\item{Tested on amateur 40m band - Haven't been able to confirm skywave.\\
+\begin{itemize}
+\item Required a licensed amateur operator to be present.
+\item License examination to be taken tomorrow!
+\end{itemize}}
+\end{itemize}
 }
 
 
@@ -272,6 +310,7 @@
 \textbf{Amateur High Altitude Ballooning (HAB)}
 \begin{itemize}
 \item Aims to set height / distance records for balloon flights.
+\item Record images from high above the Earth's surface.
 \item Some form of telemetry system used to track balloon in flight.
 \item 433MHz Single-Sideband Transmissions commonly used.
 \end{itemize}
@@ -295,7 +334,7 @@
 \end{figure}
 \begin{itemize}
 \item Local Amateur HAB group - \textbf{Project Horus}
-\item{Have offered to fly a prototype transmitter, with modifications.\\
+\item{Have offered to fly a prototype transmitter on the 10th of October.
 \begin{itemize}
 \item GPS Receiver, for positioning information
 \item Temperature Sensors
@@ -317,9 +356,18 @@
 
 \item Amplifier Module
 \end{itemize}
-
 }
 
+\frame{\MyLogo
+\frametitle{Future Work}
+\begin{itemize}
+\item Finish PCB Main-Board Design.
+\item Characterise amplifiers.
+\item Perform long-distance testing.
+\item Make a deliverable prototype.
+\end{itemize}
+
+}
 
 \frame{\MyLogo
 \frametitle{References}
@@ -330,4 +378,10 @@ Saft \textit{Lithium-thionyl chloride (Li-SOCl2) Cell Range}\\
 }
 }
 
+\frame{\MyLogo
+\frametitle{Question Time}
+\vfill
+\Large{Any Questions?}
+\vfill
+}
 \end{document}
