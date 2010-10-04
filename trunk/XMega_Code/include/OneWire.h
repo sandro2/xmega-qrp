@@ -33,7 +33,7 @@ class OneWire
 {
   private:
     uint8_t bitmask;
-    volatile uint8_t *baseReg;
+    //volatile uint8_t *baseReg;
 
 #if ONEWIRE_SEARCH
     // global search state
