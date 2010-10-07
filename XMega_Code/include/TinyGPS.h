@@ -36,6 +36,7 @@
 #define _GPS_KM_PER_METER 0.001
 //#define _GPS_NO_STATS'
 
+// Could define this as a uint_8 actually...
 #define byte int
 
 class TinyGPS

@@ -44,14 +44,13 @@
 #include "include/OneWire.h"
 #include "include/DallasTemperature.h"
 
-
-
+// Output Ports
 #define LEDPORT     PORTE
 #define SWITCHPORT  PORTF
 #define AD9835_PORT PORTD
 
 // Carrier Frequency Setting
-uint32_t CARRIER_FREQ = 1000;//7025000;
+uint32_t CARRIER_FREQ = 1000;//7037000;
 
 // Data Modes
 #define RTTY_300    0
@@ -59,8 +58,13 @@ uint32_t CARRIER_FREQ = 1000;//7025000;
 #define QRSS        2 
 #define RELIABLE_MODE    1 // DominoEX8 is our 'reliable' mode. Better than RTTY300 at least.
 #define FALLBACK    2   // Our QRSS mode, in case the battery really goes to hell.
+
+// Starting data mode.
 int data_mode = 0;
 
+// Battery Threshold Voltges, for switching data-modes
+// Current amp doesn't change output with supply voltage, so not needed.
+// (not with switchmode reg anyway).
 #define BATT_THRESHOLD  9.0
 #define BATT_THRESHOLD_2  7.0
 
@@ -85,6 +89,7 @@ DallasTemperature sensors(&oneWire);
 
 // Internal sensor on prototype board
 uint8_t internal[] = {0x28, 0xE4, 0xEF, 0x54, 0x02, 0x00, 0x00, 0xC7};
+uint8_t external[] = {0x28,0x57,0x42,0xC2,0x02,0x00,0x00,0xAE};
 
 
 
@@ -110,7 +115,7 @@ void TXString(char *string){
             RTTY_TXString(string);
             break;
         case 1:
-            Domino_TXString("$$$"); // Try and help sync the receiver.
+            Domino_TXString("$$$$"); // Try and help sync the receiver.
             Domino_TXString(string);
             break;
         case 2:
@@ -279,7 +284,7 @@ int main(void) {
  
     while(1){
         // Identify every few minutes
-        if (counter%10 == 0) TXString("DE VK5VZI Project Horus Telemetry Test \n");
+        if (counter%10 == 0) TXString("DE VK5VZI Project Horus HAB Launch - projecthorus.org \n");
     
 	    // Read ADC PortA pin 0, using differential, signed input mode. Negative input comes from pin 1, which is tied to ground. Use VCC/1.6 as ref.
 	    uint16_t temp = readADC(); 
@@ -290,9 +295,9 @@ int main(void) {
     
         // Collect GPS data
         
-        // NOTE - NEED TO ADD IN SPEED.
         gps.f_get_position(&lat, &lon);
 	    sats = gps.sats();
+	    speed = gps.f_speed_kmph();
 	    altitude = (long)gps.f_altitude();
 	    gps.crack_datetime(0, 0, 0, &time[0], &time[1], &time[2]);
 	    
@@ -301,14 +306,14 @@ int main(void) {
 	    
         sensors.requestTemperatures();
         _intTemp = sensors.getTempC(internal);
-        //_extTemp = sensors.getTempC(external);
+        _extTemp = sensors.getTempC(external);
         if (_intTemp!=85 && _intTemp!=127 && _intTemp!=-127 && _intTemp!=999) intTemp = _intTemp;
-        //if (_extTemp!=85 && _extTemp!=127 && _extTemp!=-127 && _extTemp!=999) extTemp = _extTemp;
+        if (_extTemp!=85 && _extTemp!=127 && _extTemp!=-127 && _extTemp!=999) extTemp = _extTemp;
 	    
 	    if(data_mode != FALLBACK){
 	    
             // Construct our Data String
-            sprintf(tx_buffer,"$$DARKSIDE,%u,%02d:%02d:%02d,%s,%s,%ld,%d,%d,%s",counter++,time[0], time[1], time[2],latString,longString,altitude,sats,intTemp,voltString);
+            sprintf(tx_buffer,"$$DARKSIDE,%u,%02d:%02d:%02d,%s,%s,%ld,%d,%d,%d,%d,%s",counter++,time[0], time[1], time[2],latString,longString,altitude,speed,sats,intTemp,extTemp,voltString);
             
             
             // Calculate the CRC-16 Checksum
@@ -339,7 +344,7 @@ int main(void) {
             // This string should be changed if the 'reliable' mode is changed.
             TXString("Battery Voltage Below 9V. Switching to DominoEX8.\n");
         }
-        */
+        
         // Perform a mode switch, if required. 
         // Done here to allow for mode changes to occur elsewhere.
         if(new_mode != -1){
@@ -347,7 +352,7 @@ int main(void) {
             TX_Setup();
             new_mode = -1;
         }
-        
+        */
         // And wait a little while before sending the next string.
         _delay_ms(1000);
         
