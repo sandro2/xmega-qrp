@@ -1,5 +1,5 @@
 \documentclass[a4paper,12pt]{article}
-\linespread{1.3}
+\linespread{1.5}
 \usepackage[left=2cm,top=2cm,right=2cm,bottom=2cm]{geometry}
 
 %\usepackage{palatino}
@@ -80,12 +80,39 @@ Honours Project\\
  \vspace*{\fill}
 \begin{abstract}
 \noindent
-A common problem with remote sensor systems is the retrieval of data. Satellite-based systems are expensive, as is travelling to the sensor. Thankfully, ionospheric propagation comes to the rescue! Radio signals below 30MHz can easily bounce off the ionosphere, travelling thousands of kilometres using only a few watts of transmit power.Based around an Atmel XMega Micro-Controller and using Direct Digital Synthesis techniques, this project aims to provide a reliable low power HF telemetry system, usable in a variety of remote telemetry applications. 
+A common problem with remote sensor systems is the retrieval of data. Satellite-based systems are expensive, as is travelling to the sensor. Thankfully, ionospheric propagation comes to the rescue! Radio signals below 30MHz can easily bounce off the ionosphere, travelling thousands of kilometres using only a few watts of transmit power.
+Based around an Atmel XMega Micro-Controller and using Direct Digital Synthesis techniques, this project aims to provide a reliable low power HF telemetry system, usable in a variety of remote telemetry applications. 
 By making use of the XMega's power-save modes and using high-efficiency RF amplifiers, power consumption is minimised, allowing months of operation from battery power.
 \end{abstract}
 \vspace*{\fill}
 \newpage
 \tableofcontents
 \newpage
+
+\section{Introduction}
+
+\section{Hardware Design}
+
+\section{Software Design}
+
+\section{Testing}
+
+\section{Management}
+
+
+\begin{appendices}
+\section{Software}
+All software for this project has been released under the GPLv3 license. 
+
+\subsection{The Arduino Project and the XMega}
+The Arduino is an
+\begin{quote}
+open-source electronics prototyping platform based on flexible, easy-to-use hardware and software.\footnote{http://arduino.cc/}
+\end{quote}
+Since many users of the Arduino haven't had much experience in programming, many libraries have been created to fulfil various needs. It's fairly common to begin working on a bit of code to drive some chip, to find that someone has already written a library a few months previously. To quickly get sections of the XMega's codebase working, it was decided to port certain Arduino libraries to the XMega platform. 
+
+Arduino's IDE uses the `wiring' programming language. Wiring is a `C-like' language, following most of C's syntax, to the point that the Arduino IDE uses a collection of C++ libraries to `convert' wiring to C++ for compilation. While these libraries could be ported to the XMega allowing usage of the Arduino IDE for this project, this would have required a lot of work and been out of scope. Instead, the Arduino libraries which were needed (OneWire, DallasTemperature, TinyGPS) were individually ported. This involved replacing various Arduino-specific function calls with generic AVR-C calls, and some other minor code changes. 
+
+\end{appendices}
 
 \end{document}

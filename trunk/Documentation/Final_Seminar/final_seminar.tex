@@ -62,12 +62,14 @@
 }
 
 \subsection{Hardware \& Software Overview}
-\frame{\MyLogo
-\frametitle{Hardware \& Software Overview}
-\begin{itemize}
-\item Modular Design \& Construction
-\end{itemize}
-}
+
+
+%\frame{\MyLogo
+%\frametitle{Hardware \& Software Overview}
+%\begin{itemize}
+%\item Modular Design \& Construction
+%\end{itemize}
+%}
 \frame{\MyLogo
 \frametitle{Hardware \& Software Overview}
 \begin{figure}
@@ -103,9 +105,6 @@
 \subsection{Signal Generator}
 \frame{\MyLogo
 \frametitle{Signal Generator - Analog Devices AD9835}
-\begin{itemize}
-\item Original intention was to use an AD9834, AD9835 had almost identical power requirements.
-\end{itemize}
 
 \begin{figure}
   \begin{center}
@@ -114,7 +113,7 @@
   %\caption{Atmel XPlain Development Board}
   \label{ad9835}
 \end{figure}
-\textbf{Analog Devices AD9835}
+\textbf{Analog Devices AD9835 DDS}
 \begin{itemize}
 \item Can generate Sine-waves between 1Hz - 25MHz.
 \item 2 programmable (via SPI) frequency registers.
@@ -122,19 +121,47 @@
 \item Using 16MHz SPI clock, can reprogram at 7500Hz.
 \item Draws approx 40mA @ 5V while running. 50MHz Oscillator accounts for most of this.
 \end{itemize}
+
+\begin{itemize}
+\item Original intention was to use an AD9834, the AD9835 had almost identical power requirements.
+\end{itemize}
 }
 
 \subsection{Power Amplifier}
 \frame{\MyLogo
-\frametitle{Power Amplifier}
-
+\frametitle{Power Amplifier - AD8008 40mW Amp}
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=0.6\textwidth]{diagrams/ad8008_amp.pdf}
+  \end{center}
+ % \caption{QRSS Morse Broadcast, signal level -23dB below the noise floor.}
+ % \label{qrss}
+\end{figure}
 \begin{itemize}
-\item All operate from 12V Supply.
-\item AD8008 Op-Amp based pre-amplifier - 40mW output, wide bandwidth.
-\item Class C NPN Transistor Amplifier - 1W output.
-\item Class E MOSFET Power Amplifier - 5W output.
+\item Approx 13dB gain.
+\item Wide bandwidth - flat gain over 1 to 30MHz.
+\item Draws 38mA @ 12V - 450mW! \textit{Very} inefficient!
 \end{itemize}
 }
+
+\frame{\MyLogo
+\frametitle{Power Amplifier - Towards More Power}
+\textbf{Class C NPN Transistor Amplifier}
+\begin{itemize}
+\item Using 2N4427, approx 1W output.
+\item Will require multiple stages.
+\item Approx 60\% Efficiency.
+\end{itemize}
+
+\textbf{Class D/E MOSFET Power Amplifier}
+\begin{itemize}
+\item Comparator produces PWM to drive IRF510's gate.
+\item Approx 5W output.
+\item $>$80\% Efficiency
+\end{itemize}
+
+}
+
 
 \subsection{Power Supply}
 \frame{\MyLogo
@@ -161,8 +188,8 @@
 \begin{itemize}
 \item Coded in C and C++.
 \item Libraries built first, more complex applications later.
-\item Morse, RTTY (FSK) and DominoEX modulation implemented.
-\item Data acquisition from onboard ADCs, UARTs, I$^2$C and 1-Wire Devices.
+\item Multiple modulation modes implemented.
+\item Data acquisition from onboard ADCs, UARTs, external I$^2$C and 1-Wire Devices.
 \item Some libraries ported to the XMega from the Arduino project.
 \end{itemize}
 }
@@ -195,14 +222,14 @@
 \item FSK Modulation, with start and stop bits.
 \item Implemented to operate between 50 and 300 baud (symbols/sec).
 \item Carrier Shift programmable from 170 to 425Hz.
-\item Plenty of existing software to decode RTTY (i.e. fldigi)
+\item Plenty of existing software to decode RTTY (i.e. FLDigi)
 \end{itemize}
 
 \begin{figure}
   \begin{center}
     \includegraphics[width=0.8\textwidth]{images/rtty.png}
   \end{center}
-  \caption{300 Baud RTTY, with 425Hz Carrier Shift}
+  \caption{300 Baud RTTY, with 425Hz Carrier Shift.}
   \label{rtty}
 \end{figure}
 }
@@ -214,7 +241,7 @@
 \item The first MFSK-based mode implemented - utilises Incremental Frequency Shift Keying.
 \item Resistant to multi-path and doppler effects.
 \item 6 variations available, each with different symbol rates (3.9 to 29.5Hz) and bandwidths (173 to 524Hz).
-\item Data rates varying from 2 to 14 \emph{characters} per second.
+\item User throughput from 3 to 16 \textit{characters} per second.
 \end{itemize}
 
 \begin{figure}
@@ -226,7 +253,23 @@
 \end{figure}
 }
 
-\section{Testing}
+\subsection{WSPR}
+\frame{\MyLogo
+\frametitle{WSPR - Weak Signal Propagation Network}
+\begin{itemize}
+\item Uses MEPT-JT: 1.46 baud MFSK-4 modulation with compression \& strong FEC. 6Hz Bandwidth.
+\item Useful data can be recovered with a -29dB SNR! 
+\item Online network of listeners - can check propagation quickly.
+\end{itemize}
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=0.7\textwidth]{images/wspr.jpg}
+  \end{center}
+\end{figure}
+}
+
+
+\section{Testing \& Example Application}
 \subsection{Software Testing}
 \frame{\MyLogo
 \frametitle{Software Testing}
@@ -263,6 +306,7 @@
   \end{center}
 \end{figure}
 \begin{itemize}
+\item Only fast temperature changes cause problems.
 \item AT-XMega's internal RC 32MHz oscillator drifts up to 33MHz at $-55^\circ$C.
 \item AD9835's output only drifts up by $\sim$300Hz at $-40^\circ$C!
 \end{itemize}
@@ -296,13 +340,32 @@
 \item{Tested on amateur 40m band - Haven't been able to confirm skywave.\\
 \begin{itemize}
 \item Required a licensed amateur operator to be present.
-\item License examination to be taken tomorrow!
+\item License examination to be taken ASAP!
 \end{itemize}}
 \end{itemize}
 }
 
+\subsection{Example Application \& Prototype}
 
-\section{Example Application \& Prototype}
+\frame{\MyLogo
+\frametitle{Example Application - HAB Telemetry Transmitter}
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=10cm]{images/horus_33km.jpg}
+  \end{center}
+\end{figure}
+\begin{itemize}
+\item Local Amateur HAB group - \textbf{Project Horus}
+\item{Have offered to fly a prototype transmitter tomorrow!
+\item Inputs:
+\begin{itemize}
+\item GPS Receiver, for positioning information
+\item Temperature Sensors
+\end{itemize}
+}
+\end{itemize}
+}
+
 \frame{\MyLogo
 \frametitle{Example Application - HAB Telemetry Transmitter}
 
@@ -326,61 +389,75 @@
 \end{columns}
 }
 
-\frame{\MyLogo
-\frametitle{Example Application - HAB Telemetry Transmitter}
-\begin{figure}
-  \begin{center}
-    \includegraphics[width=10cm]{images/horus_33km.jpg}
-  \end{center}
-\end{figure}
-\begin{itemize}
-\item Local Amateur HAB group - \textbf{Project Horus}
-\item{Have offered to fly a prototype transmitter on the 10th of October.
-\begin{itemize}
-\item GPS Receiver, for positioning information
-\item Temperature Sensors
-\end{itemize}
-}
-\end{itemize}
-}
 
 \frame{\MyLogo
 \frametitle{Prototype}
 \begin{itemize}
 \item{ System `Motherboard'\\
 \begin{itemize}
-\item XMega
+\item XPlain Board
 \item AD9835 DDS VFO
 \item UBlox5 GPS Module
 \item DS18B20 1-Wire Temperature Sensors
 \end{itemize}}
 
-\item Amplifier Module
+\item Amplifier Module (40mW AD8008 Amp)
+\item 1:1 Balun
+\item Half-Wave Dipole Antenna
+\item Lithium Primary Batteries
 \end{itemize}
 }
+
 
 \frame{\MyLogo
-\frametitle{Future Work}
+\frametitle{Work to be done}
 \begin{itemize}
-\item Finish PCB Main-Board Design.
-\item Characterise amplifiers.
-\item Perform long-distance testing.
-\item Make a deliverable prototype.
+\item Finish High Power Amplifiers.
+%\item Characterise amplifiers.
+\item Skywave testing.
+\item PCB mainboard \& deliverable design.
 \end{itemize}
-
 }
+
+\section{Management}
+\frame{\MyLogo
+\frametitle{Management}
+\begin{itemize}
+\item Original project schedule was very optimistic...
+
+\end{itemize}
+\textbf{Meetings}
+\begin{itemize}
+\item Weekly meetings with project supervisor.
+\item When supervisor was away, regular communication via e-mail.
+\end{itemize}
+\textbf{Budget}
+\begin{itemize}
+\item Approx \$150 of \$250 budget spent.
+\item Main costs were breakout \& development boards for fast prototyping.
+\end{itemize}
+}
+
 
 \frame{\MyLogo
 \frametitle{References}
 \tiny{
-Saft \textit{Lithium-thionyl chloride (Li-SOCl2) Cell Range}\\
+\begin{itemize}
+\item {Taylor. J, 2008 \textit{Quest for Optimum Coding and Modulation Schemes for EME}\\
+\url{http://physics.princeton.edu/pulsar/K1JT/EME\_Florence\_2008.pdf}
+}
+\item{Saft \textit{Lithium-thionyl chloride (Li-SOCl2) Cell Range}\\
 \url{http://www.saftbatteries.com/Produit\_LSH\_cell\_range\_303\_8/Default.aspx}
-
+}
+\item{Hartwell. RM, 2006 \textit{Argo QRSS Viewer}\\
+\url{http://www.sdrham.com/argo/index.html}
+}
+\end{itemize}
 }
 }
 
 \frame{\MyLogo
-\frametitle{Question Time}
+\frametitle{Demonstration \& Questions}
 \vfill
 \Large{Any Questions?}
 \vfill
