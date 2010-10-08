@@ -163,6 +163,6 @@ void Morse_TXString(char *string){
 
 	for (int i = 0; i < strlen(string); i++) {
         Morse_SendLetter(string[i]);
-        Morse_DelayUnit(3);
+        Morse_DelayUnit(2);
     }
 }

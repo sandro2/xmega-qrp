@@ -50,7 +50,8 @@
 #define AD9835_PORT PORTD
 
 // Carrier Frequency Setting
-uint32_t CARRIER_FREQ = 1000;//7037000;
+//uint32_t CARRIER_FREQ = 1000;
+uint32_t CARRIER_FREQ = 7037000;
 
 // Data Modes
 #define RTTY_300    0
@@ -61,6 +62,7 @@ uint32_t CARRIER_FREQ = 1000;//7037000;
 
 // Starting data mode.
 int data_mode = 0;
+volatile int new_mode = -1;
 
 // Battery Threshold Voltges, for switching data-modes
 // Current amp doesn't change output with supply voltage, so not needed.
@@ -102,7 +104,7 @@ void TX_Setup(){
             Domino_Setup(CARRIER_FREQ,8);
             break;
         case 2:
-            Morse_Setup(5,CARRIER_FREQ); // Sloooooooooq QRSS fallback mode.
+            Morse_Setup(15,CARRIER_FREQ); // Slooooooooow QRSS fallback mode.
             break;
         default:
             break;
@@ -171,7 +173,7 @@ uint16_t gps_CRC16_checksum (char *string)
 
 ISR(USARTD1_RXC_vect){
     gps.encode(USARTD1.DATA);
-    PORTE.OUTTGL = 0x08;
+    PORTE.OUTTGL = 0x40;
 }
 
 uint16_t readADC(){
@@ -272,19 +274,18 @@ int main(void) {
     
     sendNMEA("$PUBX,00"); // Poll the UBlox5 Chip for data.
     
-    TXString("GPS Active, Interrupts On.\n");
+    //TXString("GPS Active, Interrupts On.\n");
     
     int found_sensors = sensors.getDeviceCount();
     
-    sprintf(tx_buffer,"Found %u sensors.\n",found_sensors);
-    TXString(tx_buffer);
+    //sprintf(tx_buffer,"Found %u sensors.\n",found_sensors);
+   // TXString(tx_buffer);
     unsigned int counter = 0; // Init out TX counter.
     
-    int new_mode = -1;
  
     while(1){
         // Identify every few minutes
-        if (counter%10 == 0) TXString("DE VK5VZI Project Horus HAB Launch - projecthorus.org \n");
+        if ((counter%30 == 0)&&(data_mode != FALLBACK)) TXString("DE VK5VZI Project Horus HAB Launch - projecthorus.org \n");
     
 	    // Read ADC PortA pin 0, using differential, signed input mode. Negative input comes from pin 1, which is tied to ground. Use VCC/1.6 as ref.
 	    uint16_t temp = readADC(); 
@@ -297,6 +298,7 @@ int main(void) {
         
         gps.f_get_position(&lat, &lon);
 	    sats = gps.sats();
+	    if(sats>2){LEDPORT.OUTCLR = 0x80;}
 	    speed = gps.f_speed_kmph();
 	    altitude = (long)gps.f_altitude();
 	    gps.crack_datetime(0, 0, 0, &time[0], &time[1], &time[2]);
@@ -325,11 +327,11 @@ int main(void) {
         }else{
             // If our battery is really low, we don't want to transmit much data, so limit what we TX to just an identifier, battery voltage, and our position.
             
-            sprintf(tx_buffer, "DARKSIDE %s %s %s %ld", bat_voltage, latString, longString,altitude);
+            sprintf(tx_buffer, "DE VK5VZI HORUS8 %s %s %s %ld", bat_voltage, latString, longString,altitude);
         }
         
         // Blinky blinky...
-        LEDPORT.OUTTGL = 0x01;
+        LEDPORT.OUTTGL = 0x20;
         
         // Transmit!
         TXString(tx_buffer);
@@ -344,7 +346,7 @@ int main(void) {
             // This string should be changed if the 'reliable' mode is changed.
             TXString("Battery Voltage Below 9V. Switching to DominoEX8.\n");
         }
-        
+        */
         // Perform a mode switch, if required. 
         // Done here to allow for mode changes to occur elsewhere.
         if(new_mode != -1){
@@ -352,9 +354,12 @@ int main(void) {
             TX_Setup();
             new_mode = -1;
         }
-        */
+        
         // And wait a little while before sending the next string.
-        _delay_ms(1000);
+        // Don't delay for domino - synch stuffs up otherwise
+        if(data_mode != DOMINOEX8){
+            _delay_ms(1000);
+        }
         
         
     }

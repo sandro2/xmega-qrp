@@ -18,23 +18,52 @@
 #include "avr_compiler.h"
 #include "TIMER.h"
 
+uint32_t millis_counter = 0;
 uint32_t second_counter = 0;
 uint32_t minute_counter = 0;
 
 ISR(TCC0_OVF_vect){
-    second_counter++;
+    millis_counter++;
     
-    PORTE.OUTTGL = 0x10; // Flash a LED every second.
+    if(millis_counter%1000 == 0){
     
-    if(second_counter%60 == 0){
-        minute_counter++;
+        second_counter++;
+        
+        PORTE.OUTTGL = 0x10; // Flash a LED every second.
+        
+        if(second_counter%60 == 0){
+            minute_counter++;
+        }
     }
-
+    /*
+    int temp = SWITCHPORT.IN & 0xFF;
+    
+    switch(~temp&0xFF){
+        case RTTY_MASK:
+            new_mode = RTTY_300;
+            LEDPORT.OUTSET = 0x0F;
+            LEDPORT.OUTCLR = RTTY_MASK;
+            
+            break;
+        case DOMINO_MASK:
+            new_mode = DOMINOEX8;
+            LEDPORT.OUTSET = 0x0F;
+            LEDPORT.OUTCLR = DOMINO_MASK;
+            break;
+        case CW_MASK:
+            new_mode = QRSS;
+            LEDPORT.OUTSET = 0x0F;
+            LEDPORT.OUTCLR = CW_MASK;
+            break;
+        default:
+            break; // Don't change anything!
+    }
+    */
 }
 
 void init_timer(){
-    TCC0.PER = 31250;
-    TCC0.CTRLA = ( TCC0.CTRLA & ~TC0_CLKSEL_gm ) | TC_CLKSEL_DIV1024_gc;
+    TCC0.PER = 125;
+    TCC0.CTRLA = ( TCC0.CTRLA & ~TC0_CLKSEL_gm ) | TC_CLKSEL_DIV256_gc;
     TCC0.INTCTRLA = ( TCC0.INTCTRLA & ~TC0_OVFINTLVL_gm ) | TC_OVFINTLVL_LO_gc;
 }
 
@@ -44,5 +73,5 @@ uint32_t seconds(){
 
 // Hack for arduino code compatability
 uint32_t millis(){
-    return second_counter;
+    return millis_counter;
 }

@@ -19,8 +19,21 @@
 #ifndef TIMER_H
 #define TIMER_H 1
 
+#define RTTY_MASK   0x01
+#define DOMINO_MASK 0x02
+#define CW_MASK 0x04
+
+#define LEDPORT     PORTE
+#define SWITCHPORT  PORTF
+
+#define RTTY_300    0
+#define DOMINOEX8   1
+#define QRSS        2 
+
+extern volatile int new_mode;
+
 void init_timer();
 uint32_t seconds();
-
+uint32_t millis();
 
 #endif
