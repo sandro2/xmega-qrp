@@ -21,15 +21,15 @@
 #ifndef AD9834_XMEGA_H
 #define AD9834_XMEGA_H 1
 
-#define AD9835_PORT PORTD
+#define AD9834_PORT PORTD
 
-#define SDATA_PIN	PIN0_bm
-#define SCLK_PIN	PIN1_bm
-#define	FSYNC_PIN	PIN2_bm
-#define FSEL_PIN	PIN3_bm
-#define RESET_PIN   PIN4_bm
-#define SLEEP_PIN   PIN5_bm
-#define PSEL_PIN    PIN6_bm
+#define SDATA_PIN	PIN3_bm
+#define SCLK_PIN	PIN4_bm
+#define	FSYNC_PIN	PIN5_bm
+#define FSEL_PIN	PIN6_bm
+#define RESET_PIN   PIN1_bm
+#define SLEEP_PIN   PIN2_bm
+#define PSEL_PIN    PIN7_bm
 
 
 
