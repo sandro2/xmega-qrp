@@ -80,7 +80,7 @@ Honours Project\\
  \vspace*{\fill}
 \begin{abstract}
 \noindent
-A common problem with remote sensor systems is the retrieval of data. Satellite-based systems are expensive, as is travelling to the sensor. Thankfully, ionospheric propagation comes to the rescue! Radio signals below 30MHz can easily bounce off the ionosphere, travelling thousands of kilometres using only a few watts of transmit power.
+A common problem with remote sensor systems is the retrieval of data. Satellite-based systems are expensive, as is travelling to the sensor. HF propagation provides an inexpensive alternative. Radio signals below 30MHz can easily bounce off the ionosphere, travelling thousands of kilometres using only a few watts of transmit power.
 Based around an Atmel XMega Micro-Controller and using Direct Digital Synthesis techniques, this project aims to provide a reliable low power HF telemetry system, usable in a variety of remote telemetry applications. 
 By making use of the XMega's power-save modes and using high-efficiency RF amplifiers, power consumption is minimised, allowing months of operation from battery power.
 \end{abstract}
@@ -90,14 +90,66 @@ By making use of the XMega's power-save modes and using high-efficiency RF ampli
 \newpage
 
 \section{Introduction}
+Many scientific experiments require data logging over a long time period, and in remote locations. To further research progress, it is desirable for some of the collected data to be accessible throughout the run of the experiment.
 
-\section{Hardware Design}
+A number of solutions exist to obtain data from a remote sensor unit. The first is to physically access the remote sensor station, and copy data from whatever storage may exist. For very remote sensor units visiting the site may be impractical or too costly, so some form of wireless communication is often used. 
 
-\section{Software Design}
+Satellite data transmission is a reliable way of retrieving data, but comes at a high cost. For example, using the Iridium Satellite constellation to transmit data would cost approximately USD\$2.50 per minute, with a 2400 baud data rate\citep{ref:iridium}.
+
+The other option is to other methods of radio communication. For reasonably short ($<$50km) distances VHF or UHF telemetry can be used. For example, the Australian Bureau of Meteorology uses a network of VHF transmitters\citep{ref:bomtx} and repeaters to obtain data from weather stations around Adelaide. VHF and UHF can work for longer distances ($>$50km), but with less reliability. Transmission at these distances relies on tropospheric ducting, a phenomenon that is not always present. To obtain high reliability long distance transmission, we must move further down the electromagnetic spectrum, to the HF (`high frequency') band.
+
+\subsubsection*{The Ionosphere}
+
+Radio waves in the HF band propagate mainly by two means: ground-wave and sky-wave. Ground-wave, as the name suggests, travel along the surface of the earth. Ground-wave signals are attenuated as they travel along the earth's surface, limiting their distance. Sky-waves however, refract off a charged region of the earth's atmosphere called the ionosphere, and can travel extremely long distances.
+
+The ionosphere is a complex and ever-changing layer (actually multiple layers) of ionized particles that surrounds our planet. It consists of multiple layers , given the letters D, E and F. The D-layer, which is the lowest and is strongest during the day, attenuates (absorbs) RF energy below a certain frequency. The E and F layers, however, \textit{reflect} RF energy below a certain \textit{critical frequency}, $f_c$. This property enables HF radio signals to be `bounced' off the ionosphere, even multiple times, to communicate over long distances. Losses from the D-layer, and the critical frequencies of the E and F layers determine the Lowest Usable Frequency (LUF) and Maximum Usable Frequency (MUF) for long distance communication. Ionospheric prediction services, such as the one provided by the Australian government \citep{ref:bom}, provide tools to predict these frequencies, and hence determine the optimal frequency for reliable communication.
+
+Another consideration is the angle at which a radio wave interacts with the ionosphere. If a radio signal is aimed at the horizon it will hit the ionosphere at a shallow angle, resulting in very long propagation distances, possibly thousands of kilometres. For shorter distances the signal is aimed close to vertical, allowing much shorter hops, perhaps a few hundred kilometres. This method of transmission is called `Near Vertical-Incidence Skywave' (NVIS) and is the primary method this project will use to transmit data.
+
+\subsubsection*{Project Applications}
+
+\textit{
+\begin{quote}
+Design and build a low power short wave data transmitter that can translate low rate data into a modulated short wave output with sufficient power to transmit the data over several hundred kilometres on an Antarctic communication path.
+\end{quote}
+}
+
+\section{Hardware}
+
+\subsection{CPU}
+The main CPU of the HF transmitter is an Atmel AT-XMega128A1
+
+\subsection{Signal Generator}
+
+\subsection{Pre-Amplifier}
+
+\subsection{Class E Power Amplifier}
+
+
+\section{Software}
+
+\subsection{Hardware Libraries}
 
 \section{Testing}
 
-\section{Management}
+\section{Project Management}
+
+\section{References}
+\renewcommand*{\refname}{\vspace*{-12mm}}
+\begin{thebibliography}{99}
+\bibitem{ref:iridium}
+Iridium Communications Inc. ``Iridium Satellite Call Plans"" \url{http://www.iridiumphones.com.au/Call\%20Plan\%20Brochure\%20-\%20Post-paid.pdf}, 2010
+
+\bibitem{ref:bomtx}
+ACMA Register of Radio-communications Licenses, Met Bureau Site near Corkscrew Rd Montacute \url{http://web.acma.gov.au/pls/radcom/assignment\_search.lookup?pACCESS\_ID=1320447&pDEVICE\_ID=1316356}
+
+\bibitem{ref:bom}
+Australian Bureau of Meteorology, ``IPS Online HF Network Frequency Selection Tool" \url{http://www.ips.gov.au/HF\_Systems/7/1/10}, 2010 %[Mar. 14, 2010]
+
+
+
+\end{thebibliography}
+
 
 
 \begin{appendices}
