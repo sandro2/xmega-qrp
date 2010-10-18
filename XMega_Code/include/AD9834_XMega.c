@@ -17,7 +17,7 @@
     For a full copy of the GNU General Public License, 
     see <http://www.gnu.org/licenses/>.
 */
-
+#include "avr_compiler.h"
 #include "AD9834_XMega.h"
 #include <math.h>
 
@@ -58,8 +58,8 @@ void AD9834_DAC_ON(int value){
 
 void AD9834_SelectFREG(int value){
     if(PINSW){
-        if(value)   digitalWrite(FSEL_PIN,HIGH);
-        else        digitalWrite(FSEL_PIN,LOW);
+        if(value)   AD9834_PORT.OUTSET = FSEL_PIN;//digitalWrite(FSEL_PIN,HIGH);
+        else        AD9834_PORT.OUTCLR = FSEL_PIN;//digitalWrite(FSEL_PIN,LOW);
     }else{
         if(value)   AD9834_CONTROL |= 0x0800;
         else        AD9834_CONTROL &= ~0x0800;
@@ -69,8 +69,8 @@ void AD9834_SelectFREG(int value){
 
 void AD9834_SelectPREG(int value){
     if(PINSW){
-        if(value)   digitalWrite(PSEL_PIN,HIGH);
-        else        digitalWrite(PSEL_PIN,LOW);
+        if(value)   AD9834_PORT.OUTSET = PSEL_PIN;//digitalWrite(PSEL_PIN,HIGH);
+        else        AD9834_PORT.OUTCLR = PSEL_PIN;//digitalWrite(PSEL_PIN,LOW);
     }else{
         if(value)   AD9834_CONTROL |= 0x0400;
         else        AD9834_CONTROL &= ~0x0400;
@@ -80,8 +80,8 @@ void AD9834_SelectPREG(int value){
 
 void AD9834_Reset(int value){
     if(PINSW){
-        if(value)   digitalWrite(RESET_PIN,HIGH);
-        else        digitalWrite(RESET_PIN,LOW);
+        if(value)   AD9834_PORT.OUTSET = RESET_PIN;
+        else        AD9834_PORT.OUTCLR = RESET_PIN;
     }else{
         if(value)   AD9834_CONTROL |= 0x0100;
         else        AD9834_CONTROL &= ~0x0100;
@@ -91,8 +91,8 @@ void AD9834_Reset(int value){
 
 void AD9834_Sleep(int value){
     if(PINSW){
-        if(value)   digitalWrite(SLEEP_PIN,HIGH);
-        else        digitalWrite(SLEEP_PIN,LOW);
+        if(value)   AD9834_PORT.OUTSET = SLEEP_PIN;//digitalWrite(SLEEP_PIN,HIGH);
+        else        AD9834_PORT.OUTCLR = SLEEP_PIN;//digitalWrite(SLEEP_PIN,LOW);
     }else{
         if(value)   AD9834_CONTROL |= 0x0080;
         else        AD9834_CONTROL &= ~0x0080;
@@ -120,13 +120,13 @@ unsigned long AD9834_SetFreq(int f_reg, unsigned long freq){
 		f_LSB = (0x4000 | (unsigned int)(temp & 0x00003FFF));
 		f_MSB = (0x4000 | ((unsigned int)(temp>>14) & 0x3FFF));
 	}
-	Serial.println("Setting Frequency - Sending Control Word");
+	//Serial.println("Setting Frequency - Sending Control Word");
     AD9834_SendWord(AD9834_CONTROL|0x2000);
-    Serial.println("Setting Frequency - Sending LSB");
+   // Serial.println("Setting Frequency - Sending LSB");
     AD9834_SendWord(f_LSB);
-    Serial.println("Setting Frequency - Sending MSB");
+    //Serial.println("Setting Frequency - Sending MSB");
     AD9834_SendWord(f_MSB);
-    Serial.println("Setting Frequency - Clearing B28");
+    //Serial.println("Setting Frequency - Clearing B28");
     AD9834_SendWord(AD9834_CONTROL);
     return temp;
 }
