@@ -17,6 +17,7 @@
 \usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{pdfpages}
+\usepackage{wrapfig}
 \usepackage{fancyhdr}
 \usepackage{pict2e}
 \setlength{\headheight}{15.2pt}
@@ -123,6 +124,8 @@ This project was originally intended to be used by a researcher stationed in Ant
 \item As a telemetry system for a high-altitude weather balloon. 
 \end{itemize}
 
+At it's core, the purpose of transmitter is to read in data from a number of sources, buffer the data, and then transmit it using some form of HF radio modulation. The exact form of HF modulation was not defined, to allow experimentation with a number of different modes. To enable high power testing without many licensing issues, it was decided that the project would target the 80m (3.5MHz) and 40m (7MHz) amateur radio bands. This also had the added benefit of having a large number of radio operators available to report on signal reception.
+
 To keep the spirit of the original application it was decided to keep the constraints which Antarctic operation required. These were:
 \begin{enumerate}
 \item Must be able to operate at extremely cold temperatures ($<-30^\circ$C), such as those commonly experienced in Antarctica.
@@ -131,13 +134,53 @@ To keep the spirit of the original application it was decided to keep the constr
 
 These constraints formed the guidelines for the design and construction of a prototype transmitter, which was successfully tested and then flown as a payload on a high-altitude weather balloon.
 
-
+\newpage
 \section{Hardware}
 
 \subsection{CPU}
-The main CPU of the HF transmitter is an Atmel AT-XMega128A1
+\begin{wrapfigure}{r}{0.3\textwidth}
+  \begin{center}
+    \includegraphics[width=0.28\textwidth]{images/xmega100.jpg}
+  \end{center}
+  \caption{XMega100 Breakout Board}
+  \label{fig:xmega100}
+\end{wrapfigure}
+The main CPU of the HF transmitter is an Atmel AT-XMega128A1, an 8-bit micro-controller running at clock speeds up to 32MHz. It has numerous peripherals, such as 12-bit ADCs, a 12-bit DAC, and many I/O lines. A particularly interesting feature is the ability to wire SD-RAM into three of the I/O ports and have the extra memory appear at the end of the XMega's memory space. This is called the `External Bus Interface' (EBI) and allows the buffering of large portions of data with little external circuitry.
+
+The XMega was chosen over other similar micro-controllers (such as the MSP430) primarily due to the open-source and cross-platform compiler tools available. Software development was primarily carried out on an Apple Macbook, and having a compiler and programmer working without rebooting into Microsoft Windows proved very useful.
+
+For the purposes of easy development, two breakout boards were purchased. The first, a Sparkfun XMega100 breakout board (Figure \ref{fig:xmega100}), simply gives access to the I/O pins on the IC, and was bought as a means to evaluate the micro-controller as a viable platform. The second, an Atmel XPlain development board, has buttons, LEDs, and a number of extra peripherals, such as 8MB of SDRAM and 8MB of NAND-Flash memory. This board was used for most development work, as the buttons and LEDs proved extremely useful for debugging code.
+
+\begin{wrapfigure}{l}{0.4\textwidth}
+  \begin{center}
+    \includegraphics[width=0.4\textwidth]{images/xplain.jpg}
+  \end{center}
+  \caption{XPlain Development Board}
+  \label{fig:xplain}
+\end{wrapfigure}
+
+When running at 32MHz with most peripherals disabled, the XMega was measured to draw 20mA of current at 3.3V. Running at 2MHz, the current draw was measured at 2mA. The XMega also has a number of power-save modes, where an ultra-low-power 32KHz oscillator is used. The data-sheet states these modes draw between 0.1 and $3\mu A$ depending on what functions are enabled, but this has not been tested. From this information, we can see that the XMega's power requirements are extremely minimal, especially when running at low clock speeds.
+
+To see if the XMega128A1 would satisfy the cold-climate operation requirement, the Sparkfun breakout board was subjected to low temperature testing. Using frozen CO$_2$ (dry-ice), the temperature of the XMega was lowered to $-54^\circ$C. The internal 32MHz oscillator drifted upwards to 33MHz, with the XMega still continuing to function. Further details of the test process appear in  Appendix \ref{xmegadryice}.
+
 
 \subsection{Signal Generator}
+\begin{wrapfigure}{r}{0.3\textwidth}
+  \begin{center}
+    \includegraphics[width=0.28\textwidth]{images/ad9835.jpg}
+  \end{center}
+  \caption{AD9835 Breakout Board}
+  \label{fig:ad9835}
+\end{wrapfigure}
+The start of the transmitters RF section begins with the signal generator. Two signal generators were experimented with for this project, the Analog Devices AD9834 and AD9835. Both devices are programmable Direct Digital Synthesis (DDS) signal generators, able to produce sine wave output between 1Hz and 25MHz. 
+
+Inside each device is a 10-bit 50Msps DAC, clocked using an external 50MHz oscillator. Serial Peripheral Interface (SPI) programmed control registers allow the programming of two different frequencies. These can be selected between using either control bits or a dedicated input pin, allowing FSK modulation. The registers can be reprogrammed approximately 7500 times per second, allowing MFSK modulation with high symbol rates. Phase registers (2 in the AD9834, 4 in the AD9835) permit BPSK and QPSK modulation, though this was not used in the project.
+
+The AD9834 is a lower power device, drawing 8mA at 5V, while the AD9835 can draw up to 40mA. In practice, it was found that when the current draw of the required master oscillator was included, the power requirements of both devices (with supporting circuitry) were very similar (~35mA @ 5V).
+
+The AD9835 was purchased on a breakout board from Sparkfun prior to the project, which started the idea of using a DDS to power the RF section. The AD9834 was purchased as a bare IC, and a breakout PCB was designed and constructed for it. Schematics and PCB designs for this board appear in Appendix \ref{ad9834_breakout}. The breakout was originally designed to run at 3.3v, the same voltage level as the micro-controller. However, because the board ended up using a 5V master oscillator (3.3v models were not available at the time), it had to be operated entirely at 5V. Even running at 5V the AD9834 accepts 3.3v logic levels from the XMega, unlike the 5V AD9835 which requires logic level conversion.
+
+Being a DAC-based signal generator, the output waveform is not a pure sine. Sampling theory tells us that at 10MHz we would only 5 samples per cycle, and at 25MHz only 2 samples per cycle. At the target frequency of 7MHz, clock feedthrough (50MHz) was measured at -20dB below the target output. In Australia, spurious emissions should be -30dB below the fundamental frequency, so a reasonably sharp low-pass filter was designed to drop the clock feedthrough down by about -50dB. Use of a tuned antenna will may also attenuate the clock feedthrough enough to meet legal limits, but this could not be tested easily.
 
 \subsection{Pre-Amplifier}
 
@@ -169,8 +212,47 @@ Australian Bureau of Meteorology, ``IPS Online HF Network Frequency Selection To
 \end{thebibliography}
 
 
-
+\newpage
 \begin{appendices}
+\section{XMega Dry Ice Testing}
+\label{xmegadryice}
+To test the AT-XMEGA128A1 breakout board, the chip was programmed to output the internal clock signal on a I/O pin, and one of the UARTs was programmed to continually send out ``Hello World" at 9600 baud. A LED was also attached to the board, and the chip programmed to flash it at 1Hz. The breakout board assembly was wrapped in bubble wrap (for insulation) with a ribbon cable exiting the insulation to carry the data lines. The insulated board was then placed in a small foam Eski containing approximately 3KG of dry ice. Over the course of an hour, the chip cooled down to -49$^\circ$C, where it stayed for approximately 20 minutes. After shuffling the dry ice slightly, the chip cooled down a further 5$^\circ$C, to -54$^\circ$C at which point the test was aborted. Throughout the test the clock frequency and chip temperature were measured, to produce the plot in Figure \ref{32mhzrc}.
+
+
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=13cm]{images/32MHzRC.pdf}
+\caption{AT-XMEGA128A1 RC Clock Drift}
+\label{32mhzrc}
+\end{center}
+\end{figure}
+
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=13cm]{images/xmega_4.jpg}
+\caption{AT-XMEGA128A1 Breakout Board Wrapped in Insulation}
+\label{xmega_4}
+\end{center}
+\end{figure}
+
+\newpage
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=13cm]{images/xmega_2.jpg}
+\caption{AT-XMEGA128A1 Breakout Board Warming up after testing.}
+\label{xmega_2}
+\end{center}
+\end{figure}
+
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=11cm]{images/xmega_3.jpg}
+\caption{Ice forming on the XMEGA's pin headers after testing.}
+\label{xmega_3}
+\end{center}
+\end{figure}
+
+
 \section{Software}
 All software for this project has been released under the GPLv3 license. 
 
@@ -182,6 +264,25 @@ open-source electronics prototyping platform based on flexible, easy-to-use hard
 Since many users of the Arduino haven't had much experience in programming, many libraries have been created to fulfil various needs. It's fairly common to begin working on a bit of code to drive some chip, to find that someone has already written a library a few months previously. To quickly get sections of the XMega's codebase working, it was decided to port certain Arduino libraries to the XMega platform. 
 
 Arduino's IDE uses the `wiring' programming language. Wiring is a `C-like' language, following most of C's syntax, to the point that the Arduino IDE uses a collection of C++ libraries to `convert' wiring to C++ for compilation. While these libraries could be ported to the XMega allowing usage of the Arduino IDE for this project, this would have required a lot of work and been out of scope. Instead, the Arduino libraries which were needed (OneWire, DallasTemperature, TinyGPS) were individually ported. This involved replacing various Arduino-specific function calls with generic AVR-C calls, and some other minor code changes. 
+
+
+\section{Schematics \& PCBs}
+\subsection{AD9834 Breakout Board}
+\label{ad9834_breakout}
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=12cm]{images/AD9834_Schem.pdf}
+\caption{AD9834 Breakout Board Schematic}
+\label{ad9834_schem}
+\end{center}
+\end{figure}
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=12cm]{images/AD9834_PCB.pdf}
+\caption{AD9834 Breakout Board PCB Artwork}
+\label{ad9834_PCB}
+\end{center}
+\end{figure}
 
 \end{appendices}
 
