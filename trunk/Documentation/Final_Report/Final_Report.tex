@@ -51,7 +51,7 @@
 \begin{document}
 \thispagestyle{empty}
 \vspace*{\fill}
-\includegraphics[width=10cm]{./UofAlogo.pdf}\\
+\includegraphics[width=10cm]{./UofAlogo2.pdf}\\
 \noindent
 \textsc{
 \textsc{School of Electrical \& Electronic Engineering}\\
@@ -79,7 +79,7 @@ Honours Project\\
 	}
 	\ \\
 	\ \\
-	Date Submitted: October 22, 2010 \\
+	Date Submitted: October 25, 2010 \\
 	Signature of Supervisor: \\
  %\end{center}
  \vspace*{\fill}
@@ -95,6 +95,7 @@ By making use of the XMega's power-save modes and using high-efficiency RF ampli
 \end{abstract}
 \vspace*{\fill}
 \newpage
+\setcounter{tocdepth}{2}
 \tableofcontents
 \newpage
 
@@ -119,12 +120,11 @@ Radio waves in the HF band propagate mainly by two means: ground-wave and sky-wa
   \label{fig:ionosphere}
 \end{figure}
 
-The ionosphere is a complex and ever-changing layer (actually multiple layers) of ionized particles that surrounds our planet. It consists of multiple layers , given the letters D, E and F. The D-layer, which is the lowest and is strongest during the day, attenuates (absorbs) RF energy below a certain frequency. The E and F layers, however, \textit{reflect} RF energy below a certain \textit{critical frequency}, $f_c$. This property enables HF radio signals to be `bounced' off the ionosphere, even multiple times, to communicate over long distances. Losses from the D-layer, and the critical frequencies of the E and F layers determine the Lowest Usable Frequency (LUF) and Maximum Usable Frequency (MUF) for long distance communication. Ionospheric prediction services, such as the one provided by the Australian government \citep{ref:bom}, provide tools to predict these frequencies, and hence determine the optimal frequency for reliable communication.
+The ionosphere is a complex and ever-changing layer (actually multiple layers) of ionized particles that surrounds our planet. It consists of multiple layers , given the letters D, E and F. The D-layer, which is the lowest and is strongest during the day, attenuates (absorbs) RF energy below a certain frequency. The E and F layers, however, \textit{reflect} RF energy below a certain \textit{critical frequency}, $f_c$. This property enables HF radio signals to be `bounced' off the ionosphere, even multiple times, to communicate over long distances. Losses from the D-layer, and the critical frequencies of the E and F layers determine the Lowest Usable Frequency (LUF) and Maximum Usable Frequency (MUF) for long distance communication. Ionospheric prediction services, such as the one provided by the Australian government \citep{ref:bom}, provide tools to predict these frequencies and hence determine the optimal frequency for reliable communication.
 
 Another consideration is the angle at which a radio wave interacts with the ionosphere. If a radio signal is aimed at the horizon it will hit the ionosphere at a shallow angle, resulting in very long propagation distances, possibly thousands of kilometres. For shorter distances the signal is aimed close to vertical, allowing much shorter hops, perhaps a few hundred kilometres. This method of transmission is called `Near Vertical-Incidence Skywave' (NVIS) and is the primary method this project will use to transmit data.
 
 \subsubsection*{Project Applications \& Aim}
-
 
 \begin{quote}
 \textit{
@@ -132,15 +132,21 @@ Design and build a low power short wave data transmitter that can translate low 
 - Original Project Aim
 \end{quote}
 
+At it's core, the purpose of the transmitter is to read in data from a number of sources, buffer the data, and then transmit it using some form of HF radio modulation. This would be accomplished using a transmission system consisting of a core micro-controller, a signal generator, and an amplifier.
 
-This project was originally intended to be used by a researcher stationed in Antarctica, hence the project name. Throughout the course of the project, lack of information from the researcher prompted a widening of the project's scope to include other telemetry applications. Examples include:
-\begin{itemize}
-\item Use in the Australian outback for energy research.
-\item Use on remote islands, for weather monitoring.
-\item As a telemetry system for a high-altitude weather balloon. 
-\end{itemize}
+\begin{figure}[h]
+  \begin{center}
+    \includegraphics[width=0.9\textwidth]{images/Antarctic_Radio_Overview.pdf}
+  \end{center}
+  \caption{High-Level Overview of Transmitter}
+  \label{fig:high_level}
+\end{figure}
 
-At it's core, the purpose of transmitter is to read in data from a number of sources, buffer the data, and then transmit it using some form of HF radio modulation. The exact form of HF modulation was not defined, to allow experimentation with a number of different modes. To enable high power testing without licensing issues, it was decided that the project would target the 80m (3.5MHz) and 40m (7MHz) amateur radio bands. This also had the added benefit of having a large number of radio operators available to report on signal reception.
+Originally intended to be used by a researcher in Antarctica, the project's scope was expanded to include other telemetry applications. The British Antarctic Survey have expressed interest in operating this system on remote islands in the south atlantic ocean. Closer to home, a local high-altitude ballooning group offered to launch a prototype transmitter to test it's usefulness as an in-flight telemetry system.
+
+ 
+
+The exact form of HF modulation was not defined, to allow experimentation with a number of different modes. To enable high power testing without licensing issues, it was decided that the 80m (3.5MHz) and 40m (7MHz) amateur radio bands would be used. This also had the added benefit of having a large number of radio operators available to report on signal reception.
 
 To keep the spirit of the original application it was decided to keep the constraints which Antarctic operation required. These were:
 \begin{enumerate}
@@ -164,7 +170,7 @@ To provide an overall test of how the hardware would operate in harsh conditions
   \caption{XMega100 Breakout Board}
   \label{fig:xmega100}
 \end{wrapfigure}
-The main CPU of the HF transmitter is an Atmel AT-XMega128A1, an 8-bit micro-controller running at clock speeds up to 32MHz. It has numerous peripherals, such as 12-bit ADCs, a 12-bit DAC, and many I/O lines. A particularly interesting feature is the ability to wire SD-RAM into three of the I/O ports and have the extra memory appear at the end of the XMega's memory space. This is called the `External Bus Interface' (EBI) and allows the buffering of large portions of data with little external circuitry.
+The main CPU of the HF transmitter is an Atmel AT-XMega128A1, an 8-bit micro-controller running at clock speeds up to 32MHz. It has numerous peripherals, such as 12-bit ADCs, a 12-bit DAC, and many I/O lines\citep{ref:xmega}. A particularly interesting feature is the ability to wire SD-RAM into three of the I/O ports and have the extra memory appear at the end of the XMega's memory space. This is called the `External Bus Interface' (EBI) and allows the buffering of large portions of data with little external circuitry.
 
 The XMega was chosen over other similar micro-controllers (such as the MSP430) primarily due to the open-source and cross-platform compiler tools available. Software development was primarily carried out on an Apple Macbook, and having a compiler and programmer working without rebooting into Microsoft Windows proved very useful.
 
@@ -191,7 +197,15 @@ To see if the XMega128A1 would satisfy the cold-climate operation requirement, t
   \caption{AD9835 Breakout Board}
   \label{fig:ad9835}
 \end{wrapfigure}
-The start of the transmitter's RF section begins with the signal generator. Two signal generators were experimented with for this project, the Analog Devices AD9834 and AD9835. Both devices are programmable Direct Digital Synthesis (DDS) signal generators, able to produce sine wave output between 1Hz and 25MHz at about 0.5Vp-p.
+The start of the transmitter's RF section begins with the signal generator. Two signal generators were experimented with for this project, the Analog Devices AD9834 and AD9835. Both devices are programmable Direct Digital Synthesis (DDS) signal generators, able to produce sine wave output between 1Hz and 25MHz at about 0.5Vp-p. The actual output value varies depending on frequency - a plot showing this can be seen in Figure \ref{fig:ad9835_output}.
+
+\begin{figure}%[h]
+  \begin{center}
+    \includegraphics[width=0.7\textwidth]{images/AD9835_Output.pdf}
+  \end{center}
+  \caption{AD9835 Frequency Response}
+  \label{fig:ad9835_output}
+\end{figure}
 
 Inside each device is a 10-bit 50Msps DAC, clocked using an external 50MHz oscillator. Serial Peripheral Interface (SPI) programmed control registers allow the programming of two different frequencies. These can be selected between using either control bits or a dedicated input pin, allowing FSK modulation. The registers can be reprogrammed approximately 7500 times per second, allowing MFSK modulation with high symbol rates. Phase registers (2 in the AD9834, 4 in the AD9835) permit BPSK and QPSK modulation, though this was not used in the project.
 
@@ -214,7 +228,7 @@ Another concern with any signal generator is how the output frequency drifts wit
 Figure \ref{fig:ad9835_drift} shows a spectrogram of the output from a Yaesu FRG-8800 receiver as the AD9835 was cooled. Note that the frequency scale shows the demodulated frequency, with the receiver not being accurately tuned. 
 
 \subsection{Low Pass Filter}
-A low pass filter was built using a design with a cutoff frequency of about 11MHz. 
+A low pass filter was built using a design with a cutoff frequency of about 11MHz, using a design from a similar DDS project\citep{ref:lpf}.  
 
 \begin{figure}[h]
   \begin{center}
@@ -232,7 +246,7 @@ A low pass filter was built using a design with a cutoff frequency of about 11MH
   \label{fig:ad9835_lpf}
 \end{figure}
 
-The filter is composed of a 5th order low-pass filter combined with two notch filters. The rolloff is very sharp, dropping to -150dB within 8MHz, before rising again to -50dB at 40MHz. This filter has -15dB of insertion loss at 7MHz, but this can be compensated for using the following pre-amplifier.
+The filter is composed of a 5th order low-pass filter combined with two notch filters. The rolloff is very sharp, dropping to -150dB within 8MHz, before rising again to -50dB at 40MHz. This filter has -15dB of insertion loss at 7MHz, but this can be compensated for using the following pre-amplifier. This filter design proved useful later in the project, as it heavily attenuates the 2nd harmonic when operating with a 7MHz carrier.
 
 \subsection{Pre-Amplifier}
 
@@ -240,7 +254,9 @@ As the output from the AD9835 (and the filter) has too little power to drive a h
 
 The amplifier uses both op-amps in series, in a non-inverting configuration. The second op-amp is set to have a gain of 4.1, while the first has a gain variable between 3 and 20.5, giving a total gain between 12.3 and 84. The input signal is biased to half the supply voltage, to attempt to stop the signal hitting the supply or ground rails. Input and output impedances of the amplifier are both approximately $50\Omega$, 
 
-Experimentation has found that the amplifier can be tuned to give a 4Vp-p output into a 50$\Omega$ load before distortion becomes a problem. Distortion can also occur if the supply voltage drops below 12V, as the bottom of the output waveform hits the ground rail unless the gain is lowered. Into a $50\Omega$ load this gives 40mW of RF power (16dBm), which is enough for use in some shorter range applications, but not really enough for sky-wave propagation.
+For most applications, the output frequency will not change much, so the amplifier is tuned to give maximum gain without distortion at the target frequency. With the amplifier tuned this way, the amplifier can produce distortion at lower frequencies, due to the non-linear output of the AD9835. 
+
+Experimentation has found that the amplifier can be tuned to give a 3.5Vp-p output into a 50$\Omega$ load before distortion becomes a problem. Distortion can also occur if the supply voltage drops below 12V, as the bottom of the output waveform hits the ground rail unless the gain is lowered. The amplifier outputs 30mW of RF power (14dBm), which is enough for use in some shorter range applications, but not really enough for sky-wave propagation.
 
 \begin{figure}[h]
   \begin{center}
@@ -252,11 +268,17 @@ Experimentation has found that the amplifier can be tuned to give a 4Vp-p output
 
 The amplifier was initially constructed on a vero-board, using a SOIC-8 (the footprint of the AD8008) to DIP breakout board. A PCB was later designed, with the breakout board still in use. This PCB was later mounted in a small jiffy box with the low pass filter. An image of the amplifier appears in Figure \ref{fig:ad8008}.
 
-Using the AD9835 as a signal source, the gain of the amplifier was measured as being quite flat over the range of the AD9835.
+\begin{figure}[h]
+  \begin{center}
+    \includegraphics[width=0.8\textwidth]{images/AD8008_Output.pdf}
+  \end{center}
+  \caption{AD8008 Output into $50\Omega$ load.}
+  \label{fig:ad8008_output}
+\end{figure}
 
-INSERT AMP MEASUREMENTS HERE.
+Figure \ref{fig:ad8008_output} shows the output voltage of the pre-amp into a $50\Omega$ load, as the AD9835's output frequency is varied. The output is fairly consistent with the output of the AD9835, though higher gain is present at lower frequencies. 
 
-Unfortunately, the efficiency of this amplifier is quite low, running at only 8\% efficiency (40mA @ 12V). Due to the input biasing, the amplifier draws 35mA with no RF input. Short of constructing a new amplifier (which is still an option), power consumption of the amplifier can be reduced by simply cutting power to it. This is accomplished using a MOSFET switch, controlled by the CPU. 
+Unfortunately, the efficiency of this amplifier is quite low, running at only 8\% efficiency (40mA @ 12V). Due to the input biasing, the amplifier draws 35mA with no RF input. Short of constructing a new amplifier (which is still an option), power consumption of the amplifier can be reduced by simply cutting power when it's not in use. This can be accomplished using a MOSFET switch, controlled by the CPU. 
 
 \subsection{Class E Power Amplifier}
 To provide enough power to effectively use skywave, we need more than 40mW output power. Depending on conditions, 40mW could be useful, but a few watts of output power would be preferred. To obtain this output power at maximum efficiency, a Class E MOSFET amplifier can be used.
@@ -283,7 +305,7 @@ A schmitt trigger sets it's output high when the input signal rises past a certa
 
 During construction, it was found that the output power of the inverters was still not enough to drive the FET into saturation quickly, so a push-pull buffer was constructed. This can be seen in Figure \ref{fig:fet_drive}, along with the rest of the gate driving circuitry. An LED was added between the bottom of the push-pull and ground, to add extra biasing, and to give an indication that the amplifier is running.
 
-\subsection{Output Matching Network}
+\subsubsection{Output Matching Network}
 
 \begin{figure}[h]
   \begin{center}
@@ -319,12 +341,16 @@ Drain Waveform & Output Waveform\\
 
 Figure \ref{fig:amp_waveforms} shows the drain and output waveforms of the amplifier. If the amplifier was operating as Class E, we would expect the drain waveform to be square. 
 
-To increase the efficiency of this circuit, and to produce a proper Class E amplifier, the amplifier will be re-constructed using two 2N7000 FETs in parallel. The output filter will also be re-designed, to give a lower insertion loss. A number of toroidial cores have been ordered to make low-loss inductors, but at the time this report was written, they had not yet been received. 
+To increase the efficiency of this circuit, and to produce a proper Class E amplifier, the amplifier will be re-constructed using two 2N7000 FETs in parallel. The output filter will also be re-designed, to give a lower insertion loss. A number of toroid cores have been ordered to make low-loss inductors, but at the time this report was written, they had not yet been received. 
+
+\section{Power Supplies}
 
 
 
 \section{Software}
 The hardware for this project is designed to be usable in a variety of applications, and the software is too. Hardware abstraction libraries allow easy access to I/O features of the XMega, and easy control of the signal generator. Application specific code can be built on top of these libraries, and an example application was built to demonstrate this. 
+
+All of the code for this project has been made open source, under the GPLv3 license, and is available via a Google Code project page, at \url{http://code.google.com/p/xmega-qrp/source/browse/#svn/trunk/XMega_Code}.
 
 \subsection{Hardware Abstraction Libraries}
 Much of the XMega's I/O is controlled by setting bits in registers. Since this is rather tedious, a number of helper libraries were written to abstract this into functions. Examples of some abstracted functions include:
@@ -344,7 +370,8 @@ Since programming the signal generator ICs is a complex process, libraries were 
 \item Switch between using pins or control registers.
 \end{packed_itemize}
 
-%These provide all the functionality required to perform frequency and phase modulation.
+The AD9835 was available for development work long before any AT-XMega IC's were purchased, so the initial libraries for the AD9835 were tested using an Arduino board. This allowed the code to be debugged very early, and provided a stable foundation for the data modulation libraries.
+
 
 \subsection{Data Modulation}
 To be able to transmit data, we need to be able to modulate the output of the signal generator in some way. Since have direct control over the signal generator's output frequency and phase, we can perform a number of types of modulation. While phase modulation (BPSK, QPSK) is possible, this project has focused on frequency shift keying.
@@ -390,10 +417,9 @@ A number of variations on DominoEX are available, with baud rates ranging from 4
 
 DominoEX is more noise resistant than RTTY, but has very strict timing requirements. Small differences in tone timing (such as if an interrupt is called between tone changes) can cause the demodulator (FLDigi) to become confused and stop decoding. This issue was solved by disabling interrupts during transmission. Another solution would be to make the transmission code interrupt based, but this was not implemented.
 
-%\subsection{Data Inputs}
 
 
-\section{First Prototype \& Application Test}
+\section{Prototype System}
 To enable proper testing of the transmitter system, a prototype was constructed. The XPlain development board and the AD9835 signal generator were connected together using vero-board, with on-board 3.3V and 5V regulators to allow running everything from a 12V supply. Initially, the regulators were standard linear regulators, but switch-mode regulators were eventually purchased. These switch-mode regulators operate at approximately 80\% efficiency.
 
 \begin{figure}[h]
@@ -415,10 +441,11 @@ Figure \ref{fig:mainboard} shows the prototype main-board. This board was connec
 \end{figure}
 
 
-\subsection{Test Application - HAB Payload}
+
+\section{Example Application - High Altitude Balloon Payload}
 Mid-2010, the author became involved with a local high altitude ballooning group - Project Horus. The Project Horus group use telemetry on the 433MHz ISM band to transmit positioning and temperature data from their payloads, and were interested in other telemetry systems. Terry Baume, the founder of Project Horus, offered to fly a HF telemetry transmitter as a payload on a future launch. This would allow testing of the prototype in the harsh environments present at high altitudes. 
 
-To be able to fly the prototype as a payload, a few additions had to be made. First was a way of getting the payloads position - a GPS module. The author already had a GPS module from another project, so this was wired into the main-board. To be able to collect information on the temperatures the payload would experience, temperature sensors (Maxim DS18B20) were added. The supply voltage was also fed into one of the ADC inputs via a voltage divider, so it can be measured. To save time, libraries to parse GPS input, and read from the temperature sensors were ported from the Arduino Project (see Appendix \ref{arduino}).
+To be able to fly the prototype as a payload a few additions had to be made. First was a way of getting the payload's position - a GPS module. The author already had a GPS module from another project, so this was wired into the main-board. To be able to collect information on the temperatures the payload would experience, temperature sensors (Maxim DS18B20) were added. The supply voltage was also fed into one of the ADC inputs via a voltage divider, so it can be measured. To save time, libraries to parse GPS input, and read from the temperature sensors were ported from the Arduino Project (see Appendix \ref{arduino}).
 
 Data is collected from the inputs every few seconds, and compiled into a single line, containing information as follows:
 \$\$CALLSIGN,Transmit Count, UTC Time, Latitude, Longitude, Altitude, Speed, Number of GPS Satellites in use, Internal Temperature, External Temperature, Supply Voltage * CRC16 Checksum\\
@@ -449,13 +476,86 @@ The balloon and payloads rose to 32km altitude, and were successfully received a
 
 The balloons burst, and after a short chase the payloads ended up landing about 200m offshore, at Carrickalinga (-35.4148, 138.3231), a small beach-side down near Myponga. The payloads were successfully recovered, with only a small amount of salt-water corrosion. The HF payload survived the corrosion, and after some cleaning, works perfectly.
 
-Throughout the test, the external temperature dropped to $-30^\circ$C. Unfortunately, due to the use of a linear regulator on the main-board (switch-mode supplies had not arrived in time), the inside of the payload only dropped to $-5^\circ$C.
+Throughout the test, the external temperature dropped to $-40^\circ$C. The switch-mode power supplies had not arrived in time for the test, and in-efficient linear regulators had to be used instead. The temperature on the regulators heat-sink was measured to be $75^\circ$C, and this resulted in the payload's internal temperature only dropping to $-5^\circ$C.
 
-\section{Testing}
 
-\section{Project Management}
+\section{Project Review}
+This section looks at how various aspects of the project compared to what was set out in the Design Document\citep{ref:designdoc}. Apart from the project reports, the project's main deliverable was a working prototype, which was successfully designed and built.
 
-\section{References}
+\subsection{Project Timeline}
+The project timeline, as specified in the Design Document, proved to be very optimistic in practice. Design of the amplifiers  Still, a working prototype was finished by Week 3 of Semester 2, albeit with low output power.
+
+\subsection{Project Requirements}
+The project's Design Document gave a list of requirements for the project to be considered successful. These are outlined below with corresponding discussions on how the requirements were met, or how the project can be modified to meet them.
+
+\subsubsection{Cold Temperature Operation}
+While the whole prototype was not tested, the key components of the design were shown to operate at extremely cold temperatures. In general, the problem was found to be more about controlling temperature \textit{rate of change} rather than controlling temperature itself. Use of foam insulation in the balloon payload successfully prevented fast temperature drops, even with extreme ($-40^\circ$C) external temperatures.
+
+\subsubsection{Data Rate}
+While the rate specified in the Design Document (600 baud) is achievable with the prototype hardware, testing was only conducted up to 300 baud. This was a limitation of the data decoding software in use, and could only be overcome by designing and constructing a receiver, which was out of scope for this project.
+
+\subsubsection{Output Power}
+The Design Document called for 1W output power, which has almost been achieved (880mW) with the in-development Class E amplifier, albeit at a low efficiency. Further work on the Class E amplifier will raise both the output power, and efficiency.
+
+\subsubsection{High Efficiency}
+While the amplifiers still need work to raise the efficiency, the micro-controller and signal generator operate at a reasonably low power. Power consumption can be reduced even more by increasing the time between transmissions, and cutting power to the RF stage of the circuit when not in use.
+
+\subsection{Risk Management}
+Four major risks were mentioned in the Design Document, and all had to be dealt with during the project.
+\subsubsection{Data Loss}
+Data loss was listed in the design document as a risk that could cause serious setbacks to the project. Throughout the year, two hard-drive crashes on the authors laptop occurred, requiring restoration from backups. All of the project work was stored on external version control servers, so project work was able to be continued on University machines.
+
+\subsubsection{Construction Delays}
+Construction of the AD9834 breakout board was delayed slightly, in most part due to a design error. Shipping delays caused late arrival of some parts required for the flight-test prototype. This resulted in having to use alternative devices, such as linear regulators instead of switch-mode supplies. 
+
+\subsubsection{Dry Ice}
+Dry Ice was used for all the cold temperature testing. A workshop risk assessment form had to be completed before experimentation could take place. Use of correct protective equipment prevented any injuries from occurring.
+
+\subsubsection{RF Burns \& Electric Shock}
+Since most of the project operated at low voltages, the risk of electric shock was low, and no issues were encountered. The final Class E amplifier stage produced a 40Vp-p output at the drain of the main FET, which had the potential to cause RF burns. Care was taken when working on the amplifier, and no injuries occurred.
+
+\subsection{Project Budget}
+\begin{table}[h]
+\begin{center}
+\caption{Equipment \& Component Purchases}
+\begin{tabular}{l|l}
+\hline
+\textbf{Item} & \textbf{Cost (\$)}\\
+\hline
+ATXMega100 Breakout Board & 30.80\\
+Atmel XPlain Dev Board & 60.58\\
+AD9834 DDS IC $\times$ 2 & 26.30\\
+TSSOP-20 to Pin Header Breakout Board & 13.70\\
+Dry Ice & 10\\
+AD8008 $\times$ 2 & 12.20\\
+IRF510 $\times$ 5 & 6.15\\
+2N4427 $\times$ 2 & 5.96\\
+\hline
+\textbf{Total} & \textbf{\$165.70}\\
+\end{tabular}
+\end{center}
+\label{proj_costs}
+\end{table}
+Costs for the project fell well short of the \$250 budget, only totalling \$165.70. Money was saved by using components from the department store, as well as using in-house circuit board manufacturing. The author supplied some items for the project, such as the AVR programmer, the AD9835 breakout board, and the GPS module used in the balloon test. A listing of purchased equipment appears in Table \ref{proj_costs}.
+
+\subsection{Management}
+As only one student was working on this project, many of the management processes normally used in group projects were not applicable. However, weekly meetings with the project supervisor ensured the project stayed on track. During a period that the supervisor was away, regular communication via e-mail was used. Problems of a technical nature were handled mainly by a PhD student, Heath Yardley.
+
+\section{Conclusion}
+This project produced a working HF telemetry system, providing a hardware and software framework suitable for many different telemetry applications. Testing has shown the hardware in use can operate at extremely low temperatures, as would be experienced in the Antarctic.
+
+The system provides a low-cost data-retrieval solution for remote experiments, and should prove useful to many research efforts.
+
+
+\newpage
+\section*{Glossary}
+\begin{description}
+\item[Arduino:] A simple embedded systems prototyping platform, using an Atmel ATMega micro-controller.
+\item[HF:] The `High Frequency' radio band, between 3 \& 30MHz.
+\item[XMega:] A 8-bit micro-controller, produced by Atmel.
+\end{description}
+
+\section*{References}
 \renewcommand*{\refname}{\vspace*{-12mm}}
 \begin{thebibliography}{99}
 \bibitem{ref:iridium}
@@ -467,6 +567,12 @@ ACMA Register of Radio-communications Licenses, Met Bureau Site near Corkscrew R
 \bibitem{ref:bom}
 Australian Bureau of Meteorology, ``IPS Online HF Network Frequency Selection Tool" \url{http://www.ips.gov.au/HF\_Systems/7/1/10} , 2010 %[Mar. 14, 2010]
 
+\bibitem{ref:xmega}
+Atmel Corporation, ``ATMega128A1 Datasheet'' \url{http://www.atmel.com/dyn/resources/prod_documents/doc8067.pdf}
+
+\bibitem{ref:lpf}
+Alexandru Csete, ``Sparrow Overvew'' \url{http://www.oz9aec.net/index.php/all-radios/47-sparrow-40/183-sparrow-overview}
+
 \bibitem{ref:dominoex}
 Murray Greenman, ``DominoEX - an IFK Mode for HF'' 
 \url{http://www.qsl.net/zl1bpu/MFSK/DEX.htm}
@@ -475,8 +581,10 @@ Murray Greenman, ``DominoEX - an IFK Mode for HF''
 UKHAS ``Communications Protocol''
 \url{http://ukhas.org.uk/communication:protocol}
 
-\end{thebibliography}
+\bibitem{ref:designdoc}
+Mark Jessop, ``A Radio Relay System for Remote Sensors in the Antarctic - Design Document'', 2010
 
+\end{thebibliography}
 
 \newpage
 \begin{appendices}
@@ -520,7 +628,8 @@ To test the AT-XMEGA128A1 breakout board, the chip was programmed to output the 
 
 \newpage
 \section{Software}
-All software for this project has been released under the GPLv3 license. 
+All code for this project has been released under the GPLv3 license, and is available on a Google Code SVN repository. The URL is:
+\url{http://code.google.com/p/xmega-qrp/source/browse/#svn/trunk/XMega_Code} 
 
 \subsection{The Arduino Project and the XMega}
 \label{arduino}
@@ -565,9 +674,100 @@ Arduino's IDE uses the `wiring' programming language. Wiring is a `C-like' langu
 \end{center}
 \end{figure}
 
+
+\newpage
 \section{Project Horus Launch 8 Write-up}
 \label{horus8}
+This text was written by Terry Baume, and has been reproduced, with permission, from the Project Horus website. The full text, with images, may be viewed at \url{http://projecthorus.org/?page_id=1497}
 
+\subsubsection*{Technical Information}
+
+\begin{tabular}{ll}
+Launch date & 9/10/2010, 12:30pm\\
+Landing date & 9/10/2010, 7:00pm\\
+Flight duration	& 6.5 hours\\
+Launch site & -35.1018, 138.8248\\
+Landing site & -35.4148, 138.3231\\
+Distance travelled & 57.3 km\\
+Maximum altitude & 32,101 m\\
+Average ascent rate & 1.5m/s\\
+Impact speed & 6 m/s (22 km/h)\\
+Payload weight & 1400g\\
+Flight computer &	Nut 1.1 flight computer (UHF), HF telemetry experiment\\
+GPS module & Falcom FSA03\\
+Radio transmitter & Radiometrix NTX2 25mw\\
+Video Camera & GoPro HD Hero 1080p\\
+Telemetry & 300 baud RTTY, CRC16 checksum on UHF \& HF\\
+Tracking & Ground stations (distributed listener), 3 chase cars, web based tracker\\
+\end{tabular}
+
+\subsubsection*{Details}
+
+Horus 8 was a test of a HF telemetry system being developed by a friend of ours - Electrical Engineering student \& high altitude balloon enthusiast Mark, as well as the first trial flight of a GoPro HD Hero high definition video camera. It was also planned to fly Adrian's simplex repeater again, though this had to be cut from the payload at the last minute due to launch preparation issues.
+
+Mark's HF telemetry system was built around an Atmel XMega \& signal generator, as well as an amp he'd built. It was putting out approx 40mW of power on 7.037MHz, transmitting 300b RTTY, including GPS location, temperature \& battery voltages. The goal of the flight was to test the performance of the system in both harsh conditions \& over a long range.
+
+This launch was also a precursor to a launch we'd planned the next day (10/10/10) for the One Day on Earth movement - we were trialling HD video using a GoPro HD Hero. It was hoped that the same payload (minus the HF experiment) would be flown the next day to capture footage for One Day on Earth.
+
+As part of the video launch we were also experimenting with a trailing fin design - intended to keep the payload pointed in one direction in the wind, to avoid the usual spinning - this seemed to work well!
+
+
+
+\subsubsection*{Launch}
+
+Launch conditions on the day were great - clear skies, minimal wind at ground level and being the beginning of spring, pleasantly warm. Graham VK5GH had also offered us the use of his garage for setup \& inflation, which was a great help with this more complex payload.
+
+Grant VK5GR was also recording video footage of the whole day, which we'll no doubt see online soon!
+
+Launch preparations went smoothly for the most part, until we attempted to tie the balloon off - unfortunately it slipped out of out gloved hands, and before we could catch it, it was bobbing around the ceiling, with it's open neck quickly pouring out helium!  Fortunately thanks to some quick thinking of behalf of Graham, we managed to retrieve the balloon with a ladder before too much gas was lost, and continue filling. The loss of gas meant that we needed to reduce our payload mass, so the repeater was pulled from the flight (little did we know this would end up to be a fortunate removal!).
+
+The balloon train for this launch was the longest yet - the HF antenna for Mark's payload spanned 10m both above and below it - with the rest of the gear (radar reflector, parachute, etc), we were looking at a very long balloon train!
+
+Our intended ascent rate for this launch was 3m/s - fortunately weather conditions for the day were ideal, with predictions suggesting the balloon would drift some distance away \& then return to almost exactly the launch site, regardless of the ascent rate.
+
+A few minutes before launch our payloads were assembled \& ready to go, with one exception - my UHF telemetry system had not acquired GPS lock, despite having had a good deal of time to do so. After ~20 minutes of waiting, the payload started broadcasting valid coordinates, so we sealed everything up and launched.
+
+\subsubsection*{Flight}
+
+No sooner than we'd launched we realised we had a couple of issues: our ascent rate was far too slow (~1m/s), and the primary telemetry system (UHF) had lost lock. With Mark's system having never been tested over a long range or at altitude, the thought of relying on an untested system was a bit worrying - thankfully it seemed to be performing perfectly!
+
+The ascent rate posed another issue - with the payload only rising at 1m/s, it would be many hours before we reached apogee, which meant the payload would land after dark. Fortunately predictions suggested the landing site would not be moved too far, so we hoped that recovery would still be relatively easy.
+
+About 20 minutes after launch, my telemetry system finally got lock - and held it for the remainder of the flight. Fortunately for us, the ascent rate increased to 1.5-2m/s as the gas inside the balloon warmed as it rose above the clouds - meaning that it looked like the payload would before dark after all - though it would still be a very long flight. The obvious fix for this was to settle down and have a great BBQ \& beer courtesy of Matt, Grant and Scott (thanks guys!).
+
+\subsubsection*{Recovery}
+
+4-5 hours after launch, the balloon had reached ~30km, had turned around \& was heading back towards the launch site at 100km/h. We packed up the cars and set out to the predicted landing site (near Meadows, only a few km away), splitting up and taking different roads along the way.
+
+We soon noticed something rather alarming - rather than bursting, the balloon had reached a state of float at ~32km altitude. It wasn't ascending or descending, but it was still moving along at 100km/h! We frantically tried to stay ahead of it \& get into position to intercept it when it did burst, but this did not prove easy. The balloon shot past the expected landing site and kept on going - heading straight out to sea. For the next hour, our chase cars raced towards the coast, all the while hoping the balloon would burst
+
+Before long, the balloon was above the sea, and our hopes shifted to it bursting and our payload landing on Kangaroo Island - this would have made recovery almost impossible (access is by ferry crossing only), but it was always possible that someone could find the payload \& return it to us via the contact details listed on the payload. However, at the last possible second, the balloon burst! We knew that a lower altitude wind inversion meant it was still possible our payload could end up on land, but it was too close to call - looking back now, if the balloon had burst even a few seconds later (it was heading out to sea at 100km/h), recovery would have been entirely impossible without a boat.
+
+Our 3 chase teams were now scrambling to get to the expected landing site (Carrickalinga, a tiny beachside holiday town) - we all arrived within a few moments of one another, with Adrian \& Matt's chase teams arriving in time to watch the payload come down - into the sea!
+
+The payload landed only 50m or so out to sea - but the open parachute caught the wind and started dragging it out to sea. By the time I'd arrived (only 1-2 minutes later), it was far enough out that it was very hard to spot, though the GPS tracking was still working! There was some scrambling to try to get a kayak spotted down the beach ready to recover the payload, but I decided to go for it before the payload ended up too far out and lost forever.
+
+After a few failed attempts at getting the kayak going (as it turns out Maxtrax do not make good paddles!), Joel managed to get hold of an actual paddle from a local \& came out to help me bring the payload back in - the current and wind heading out to sea was making pulling the balloon train (complete with parachute) back to shore very hard going.
+
+\subsubsection*{Results/post-mortem}
+
+Once back on dry land, I went off to seek a shower before I froze to death in the wind - thanks to all the locals who helped out, especially for letting a stranger invade their bathroom for a hot shower! 
+
+The rest of the chase teams started pulling apart the payloads and irrigating all the electronics to displace as much sea water as possible - air compressors in 4WD's certainly helped in this regard! Mark's HF payload was quite well sealed and did not suffer a great deal of water ingress - though still enough to cause some corrosion. However, the main payload containing the video did not fare so well - the hole the lens stuck out of allowed water in, which also resulted in the payload being dragged under water on it's way back to shore. The flight computer was very corroded, to the extent that some tracks were entirely eaten away.
+
+\subsubsection*{Conclusion}
+
+Whilst this launch was without a doubt the most challenging so far in terms of recovery \& the only flight on which equipment has been lost/damaged, it was not without success. The HF telemetry experiment went very well, and was logged for the duration of the entire flight. The HF telemetry did prove more difficult to decode while mobile, but was rock solid when stationary.
+
+Furthermore, our stabilising fin design proved to be quite successful, limiting the spin on the payload, and our chase teams gained a good deal of experience in tracking in difficult circumstances. The long flight time also presented an ideal opportunity for systems testing \& setup - this was the first time Matt VK5ZM's tracking systems had been used with the Horus telemetry systems.
+
+Unfortunately the length of the flight \& the water damage sustained meant the payload could not be flown the following day for One Day on Earth - by the time we had recovered everything and were back at the launch site, it was quite late. However, weather predictions for the next day were not favourable, and it seemed likely that we might end up in the water if we launched that day too.
+
+The failures of this launch essentially come down to under-inflation of the balloon - this caused both the low ascent rate and the float situation, very nearly resulting in the loss of the payload. We'll take these failings into account in future launches and somewhat re-think the gas/lift calculations used.
+
+I'd like the give a big thanks to everybody who helped to make the day possible, especially to Grant VK5GR for funding the Helium and Graham VK5GH \& Carol for letting us spend the entire day at their place (and looking after us!). An extra thanks to everybody who helped with tracking - the data relayed by stations via the internet is invaluable to us in the chase cars when surrounding conditions (trees/hills etc) make decoding a radio signal difficult.
+
+With any luck the next launch will go a little more smoothly! 
 
 \end{appendices}
 
