@@ -132,8 +132,6 @@ Design and build a low power short wave data transmitter that can translate low 
 - Original Project Aim
 \end{quote}
 
-At it's core, the purpose of the transmitter is to read in data from a number of sources, buffer the data, and then transmit it using some form of HF radio modulation. This would be accomplished using a transmission system consisting of a core micro-controller, a signal generator, and an amplifier.
-
 \begin{figure}[h]
   \begin{center}
     \includegraphics[width=0.9\textwidth]{images/Antarctic_Radio_Overview.pdf}
@@ -142,9 +140,13 @@ At it's core, the purpose of the transmitter is to read in data from a number of
   \label{fig:high_level}
 \end{figure}
 
+At it's core, the purpose of the transmitter is to read in data from a number of sources, buffer the data, and then transmit it using some form of HF radio modulation. This would be accomplished using a transmission system consisting of a core micro-controller, a signal generator, and an amplifier (Figure \ref{fig:high_level}).
+
+Having a `smart' CPU in the system, as opposed to some kind of `dumb' transmitter, means the opportunity exists to build in some more advanced features. For example, if the data being collected related to the state of the ionosphere, the data itself could be used to determine the optimal data transmission frequency. Alternatively, a small receiver could be attached to receive commands from home base, and change operational parameters.
+
+
 Originally intended to be used by a researcher in Antarctica, the project's scope was expanded to include other telemetry applications. The British Antarctic Survey have expressed interest in operating this system on remote islands in the south atlantic ocean. Closer to home, a local high-altitude ballooning group offered to launch a prototype transmitter to test it's usefulness as an in-flight telemetry system.
 
- 
 
 The exact form of HF modulation was not defined, to allow experimentation with a number of different modes. To enable high power testing without licensing issues, it was decided that the 80m (3.5MHz) and 40m (7MHz) amateur radio bands would be used. This also had the added benefit of having a large number of radio operators available to report on signal reception.
 
@@ -174,7 +176,7 @@ The main CPU of the HF transmitter is an Atmel AT-XMega128A1, an 8-bit micro-con
 
 The XMega was chosen over other similar micro-controllers (such as the MSP430) primarily due to the open-source and cross-platform compiler tools available. Software development was primarily carried out on an Apple Macbook, and having a compiler and programmer working without rebooting into Microsoft Windows proved very useful.
 
-For the purposes of easy development, two breakout boards were purchased. The first, a Sparkfun XMega100 breakout board (Figure \ref{fig:xmega100}), simply gives access to the I/O pins on the IC, and was bought as a means to evaluate the micro-controller as a viable platform. The second, an Atmel XPlain development board, has buttons, LEDs, and a number of extra peripherals, such as 8MB of SDRAM and 8MB of NAND-Flash memory. This board was used for most development work, as the buttons and LEDs proved extremely useful for debugging code.
+For the purposes of easy development, two breakout boards were purchased. The first, a Sparkfun XMega100 breakout board (Figure \ref{fig:xmega100}), simply gives access to the I/O pins on the IC, and was bought as a means to evaluate the micro-controller as a viable platform. The second, an Atmel XPlain development board, has buttons, LEDs, and a number of extra peripherals, such as 8MB of SDRAM and 8MB of NAND-Flash memory. This board was used for most development work, as the buttons and LEDs proved extremely useful for debugging code. One downside of the XPlain board is that all the extra ICs cannot be disabled, resulting in the entire board drawing about 100mA @ 3.3V, depending on how many LEDs are illuminated.
 
 \begin{wrapfigure}{l}{0.4\textwidth}
   \begin{center}
@@ -252,12 +254,15 @@ The filter is composed of a 5th order low-pass filter combined with two notch fi
 
 As the output from the AD9835 (and the filter) has too little power to drive a high powered amplifier, a pre-amp needed to be built. To enable flat gain over the signal generator's wide bandwidth, an op-amp based amplifier was designed and constructed. The amplifier is based around a wide-bandwidth Analog Devices AD8008 dual op-amp IC, running from a 12V supply. Schematics of the amplifier, and a PCB design, appear in Appendix \ref{ad8008_preamp}.
 
+\subsubsection*{Operation}
+
 The amplifier uses both op-amps in series, in a non-inverting configuration. The second op-amp is set to have a gain of 4.1, while the first has a gain variable between 3 and 20.5, giving a total gain between 12.3 and 84. The input signal is biased to half the supply voltage, to attempt to stop the signal hitting the supply or ground rails. Input and output impedances of the amplifier are both approximately $50\Omega$, 
 
 For most applications, the output frequency will not change much, so the amplifier is tuned to give maximum gain without distortion at the target frequency. With the amplifier tuned this way, the amplifier can produce distortion at lower frequencies, due to the non-linear output of the AD9835. 
 
-Experimentation has found that the amplifier can be tuned to give a 3.5Vp-p output into a 50$\Omega$ load before distortion becomes a problem. Distortion can also occur if the supply voltage drops below 12V, as the bottom of the output waveform hits the ground rail unless the gain is lowered. The amplifier outputs 30mW of RF power (14dBm), which is enough for use in some shorter range applications, but not really enough for sky-wave propagation.
+Experimentation has found that the amplifier can be tuned to give a 3.5 to 4Vp-p output (depending on supply voltage) into a 50$\Omega$ load before distortion becomes a problem. Distortion can also occur if the supply voltage drops below 12V, as the bottom of the output waveform hits the ground rail unless the gain is lowered. The amplifier outputs 30 to 40mW of RF power (14-16dBm), which is enough for use in some shorter range applications. Sky-wave propagation is possible using this sort of power, but requires either very good ionospheric conditions, or a very low data rate.
 
+\subsubsection*{Prototype}
 \begin{figure}[h]
   \begin{center}
     \includegraphics[width=0.8\textwidth]{images/opamp_amp.jpg}
@@ -293,7 +298,7 @@ The 2N7000 is a smaller device, with only a 500mA continuous drain current ratin
 \subsubsection{Gate Drive}
 To drive the gates of the FETs, we need a 50\% duty-cycle square wave, with sufficient power to push the FET into saturation quickly. A few methods of obtaining a square wave from the AD9835's sine output were considered, but the simplest and cheapest was to use chained schmitt triggers.
 
-A schmitt trigger sets it's output high when the input signal rises past a certain threshold, and only sets the output low again when the input signal drops below another threshold. When fed with a correctly biased and amplified sine wave, this produces a square wave output, with exactly 50\% duty-cycle. The constructed prototype uses a 74HC14 hex-inverter, with schmitt triggering inputs. The sine-wave is biased to half the supply voltage (Logic 5V), and fed into a single inverter. The output from this inverter is then fed into the other 5 inverters, in parallel. This allows for a greater output current. The output is then capacitively coupled, and biased with an adjustable voltage divider. With the biasing set correctly, a square wave output between 3V and 8V can be produced - perfect for pushing an IRF510 into saturation. The output can also be shifted down to -1V to 4V, perfect for the 2N7000.
+A schmitt trigger sets it's output high when the input signal rises past a certain threshold, and only sets the output low again when the input signal drops below another threshold. When fed with a correctly biased and amplified sine wave, this produces a square wave output, with exactly 50\% duty-cycle. The constructed prototype uses a 74HC14 hex-inverter, with schmitt triggering inputs. The sine-wave is biased to half the supply voltage (Logic 5V), and fed into a single inverter. The output from this inverter is then fed into the other 5 inverters in parallel, allowing for a greater output current. The output is then capacitively coupled, and biased with an adjustable voltage divider. With the biasing set correctly, a square wave output between 3V and 8V can be produced - perfect for pushing an IRF510 into saturation. The output can also be shifted down to -1V to 4V, perfect for the 2N7000.
 
 \begin{figure}[h]
   \begin{center}
@@ -303,7 +308,7 @@ A schmitt trigger sets it's output high when the input signal rises past a certa
   \label{fig:fet_drive}
 \end{figure}
 
-During construction, it was found that the output power of the inverters was still not enough to drive the FET into saturation quickly, so a push-pull buffer was constructed. This can be seen in Figure \ref{fig:fet_drive}, along with the rest of the gate driving circuitry. An LED was added between the bottom of the push-pull and ground, to add extra biasing, and to give an indication that the amplifier is running.
+During construction, it was found that the output power of the inverters was still not enough to drive the FET into saturation quickly, so a push-pull buffer was constructed. This can be seen in Figure \ref{fig:fet_drive}, along with the rest of the gate driving circuitry. An LED was added between the bottom of the push-pull and ground, to add extra biasing, and to give an indication that the amplifier is running. 
 
 \subsubsection{Output Matching Network}
 
@@ -316,6 +321,8 @@ During construction, it was found that the output power of the inverters was sti
 \end{figure}
 
 In Figure \ref{fig:fet_amp} we can see the circuit diagram for a Class E amplifier. L1 has a value around $50\mu$H, though this value isn't all that critical, as it just acts as a current source. Cv is tuned to make a resonant circuit with L1 and the FET's Cout at the operating frequency. The output low pass filter serves to attenuate the harmonics generated by the amplifier, leaving only the fundamental. 
+
+\subsubsection{Prototype}
 
 \begin{figure}[h]
   \begin{center}
@@ -343,9 +350,9 @@ Figure \ref{fig:amp_waveforms} shows the drain and output waveforms of the ampli
 
 To increase the efficiency of this circuit, and to produce a proper Class E amplifier, the amplifier will be re-constructed using two 2N7000 FETs in parallel. The output filter will also be re-designed, to give a lower insertion loss. A number of toroid cores have been ordered to make low-loss inductors, but at the time this report was written, they had not yet been received. 
 
-\section{Power Supplies}
-
-
+\subsection{Power Supplies}
+Different sections of the transmitter require different supply voltages. The amplifiers require 12V, the signal generator requires 5V, and the micro-controller 3.3V. 
+Obtaining a 12V supply is relatively easy, as a sealed lead-acid battery will work well for warmer climates, and other lithium based solutions exist for cold climates. Once we have 12V, we can then regulate down to obtain the other supply voltages. Linear regulators are a simple solution, but are highly inefficient and waste a lot of energy as heat, so switch-mode supplies are used for regulators where a large voltage drop is required. In this case, a switch-mode regulator module operating at 80\% efficiency is used to provide 5V, then a 3.3V low-dropout linear regulator is used to provide the 3.3v supply.
 
 \section{Software}
 The hardware for this project is designed to be usable in a variety of applications, and the software is too. Hardware abstraction libraries allow easy access to I/O features of the XMega, and easy control of the signal generator. Application specific code can be built on top of these libraries, and an example application was built to demonstrate this. 
@@ -353,7 +360,7 @@ The hardware for this project is designed to be usable in a variety of applicati
 All of the code for this project has been made open source, under the GPLv3 license, and is available via a Google Code project page, at \url{http://code.google.com/p/xmega-qrp/source/browse/#svn/trunk/XMega_Code}.
 
 \subsection{Hardware Abstraction Libraries}
-Much of the XMega's I/O is controlled by setting bits in registers. Since this is rather tedious, a number of helper libraries were written to abstract this into functions. Examples of some abstracted functions include:
+Much of the XMega's I/O is controlled by setting bits in registers. Since this is rather tedious, a number of helper libraries were written to abstract these operations into functions. Examples of some abstracted functions include:
 \begin{packed_itemize}
 \item Reading from the ADCs.
 \item Writing to the DAC.
@@ -417,8 +424,6 @@ A number of variations on DominoEX are available, with baud rates ranging from 4
 
 DominoEX is more noise resistant than RTTY, but has very strict timing requirements. Small differences in tone timing (such as if an interrupt is called between tone changes) can cause the demodulator (FLDigi) to become confused and stop decoding. This issue was solved by disabling interrupts during transmission. Another solution would be to make the transmission code interrupt based, but this was not implemented.
 
-
-
 \section{Prototype System}
 To enable proper testing of the transmitter system, a prototype was constructed. The XPlain development board and the AD9835 signal generator were connected together using vero-board, with on-board 3.3V and 5V regulators to allow running everything from a 12V supply. Initially, the regulators were standard linear regulators, but switch-mode regulators were eventually purchased. These switch-mode regulators operate at approximately 80\% efficiency.
 
@@ -430,7 +435,7 @@ To enable proper testing of the transmitter system, a prototype was constructed.
   \label{fig:mainboard}
 \end{figure}
 
-Figure \ref{fig:mainboard} shows the prototype main-board. This board was connected to the amplifiers via short lengths of coaxial cable, as can be seen in Figure \ref{fig:prototype}. This figure also shows a 1:1 balun, used for matching the $50\Omega$ output to a half-wave dipole antenna (not connected in this image).
+Figure \ref{fig:mainboard} shows the prototype main-board. This board was connected to the amplifiers via short lengths of coaxial cable, as can be seen in Figure \ref{fig:prototype}. This figure also shows a 1:1 balun, used for matching the $50\Omega$ output to a half-wave dipole antenna (not connected in this image). Other inputs were added to the main-board, for use in the example application (see Section \ref{example_app}).
 
 \begin{figure}[h]
   \begin{center}
@@ -440,9 +445,29 @@ Figure \ref{fig:mainboard} shows the prototype main-board. This board was connec
   \label{fig:prototype}
 \end{figure}
 
+As the Class E amplifier was constructed very late in the project, it has (so far) only been tested into a $50\Omega$ dummy load. The 40mW pre-amp however, was tested using a half-wave dipole set-up in the authors backyard. Unfortunately, this could only be received locally (around Adelaide, SA), due to the low power.
+
+\begin{table}[h]
+\begin{center}
+\caption{Main-Board Power Analysis}
+\begin{tabular}{l|l|l}
+XPlain Board & 100mA @ 3.3v & 330mW\\
+AD9835 & 40mA @ 5V & 200mW\\
+GPS Module & 120mA @ 3.3V & 396mW\\
+5V Regulator Quiescent Current & 16mA @ 12V & 192mW\\
+\hline
+\textbf{Total} & & 1118mW\\
+\end{tabular}
+\end{center}
+\label{table:mainboard_power}
+\end{table}
+
+Current draw of the board was much higher than expected, drawing 155mA @ 12V, or 1.86 watts. Current draw of various devices of the board were measured, with the results in Table \ref{table:mainboard_power}. We can see that about 740mW of power is unaccounted for! 
+Since the XPlain's current draw was measured with it disconnected from the main-board, it's possible some extra power is used to drive the level converters on the board. Some of this power can probably be accounted for in the 5V to 3.3V regulator. Unfortunately, due to the vero-board construction, the rest of the unaccounted power could not be tracked down.
 
 
 \section{Example Application - High Altitude Balloon Payload}
+\label{example_app}
 Mid-2010, the author became involved with a local high altitude ballooning group - Project Horus. The Project Horus group use telemetry on the 433MHz ISM band to transmit positioning and temperature data from their payloads, and were interested in other telemetry systems. Terry Baume, the founder of Project Horus, offered to fly a HF telemetry transmitter as a payload on a future launch. This would allow testing of the prototype in the harsh environments present at high altitudes. 
 
 To be able to fly the prototype as a payload a few additions had to be made. First was a way of getting the payload's position - a GPS module. The author already had a GPS module from another project, so this was wired into the main-board. To be able to collect information on the temperatures the payload would experience, temperature sensors (Maxim DS18B20) were added. The supply voltage was also fed into one of the ADC inputs via a voltage divider, so it can be measured. To save time, libraries to parse GPS input, and read from the temperature sensors were ported from the Arduino Project (see Appendix \ref{arduino}).
@@ -468,7 +493,7 @@ This format was chosen as it is mostly compliant with the UK High Altitude Socie
   \label{fig:payload_inside}
 \end{figure}
 
-The main-board and pre-amp were mounted inside a polystyrene box, along with a Lithium battery pack. The power amplifier was not included as it was not finished yet, and 40mW was deemed sufficient output power.  A small 1:1 balun was mounted to the side of the pre-amplifier, connected to a half-wave dipole extending outside of the box. An image of the constructed payload, and an image of the payload suspended below a balloon, appear in Figure \ref{fig:payload_inside}.
+The main-board and pre-amp were mounted inside a polystyrene box, along with an Energizer Lithium battery pack. Only the 40mW pre-amp was used, as the power amplifier was not finished yet. A small 1:1 balun was mounted to the side of the pre-amplifier, connected to a half-wave dipole extending outside of the box. An image of the constructed payload, and an image of the payload suspended below a balloon, appear in Figure \ref{fig:payload_inside}.
 
 On the 9th of October 2010 the payload was launched as Horus 8, together with another payload containing the standard UHF telemetry system and a HD video camera. A full write-up appears in Appendix \ref{horus8}. 
 
@@ -496,6 +521,8 @@ While the rate specified in the Design Document (600 baud) is achievable with th
 
 \subsubsection{Output Power}
 The Design Document called for 1W output power, which has almost been achieved (880mW) with the in-development Class E amplifier, albeit at a low efficiency. Further work on the Class E amplifier will raise both the output power, and efficiency.
+
+At the time this report was written, sky-wave propagation had not yet been tested. Calculations from the Design Document suggest the 1W output from the Class E amplifier will be sufficient for reception about 300km away, though this will depend on ionospheric conditions.
 
 \subsubsection{High Efficiency}
 While the amplifiers still need work to raise the efficiency, the micro-controller and signal generator operate at a reasonably low power. Power consumption can be reduced even more by increasing the time between transmissions, and cutting power to the RF stage of the circuit when not in use.
