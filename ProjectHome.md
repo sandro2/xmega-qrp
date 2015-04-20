@@ -1,0 +1,5 @@
+A common problem with remote sensor systems is the retrieval of data. Satellite-based systems are expensive, as is travelling to the sensor. Thankfully, ionospheric propagation comes to the rescue! Radio signals below 30MHz can easily bounce off the ionosphere, travelling thousands of kilometres using only a few watts of transmit power.
+Based around an Atmel XMega Micro-Controller and using Direct Digital Synthesis techniques, this project aims to provide a reliable low power HF telemetry system, usable in a variety of remote telemetry applications.
+By making use of the XMega's power-save modes and using high-efficiency RF amplifiers, power consumption is minimised, allowing months of operation from battery power.
+
+A fully working prototype has been constructed which collects data from various sources and transmits at regular intervals. Depending on supply voltage, the prototype will switch between modulation methods to obtain the best throughput for the available output power.
